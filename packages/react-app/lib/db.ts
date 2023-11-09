@@ -1,9 +1,8 @@
 const { Polybase } = require("@polybase/client");
-require("dotenv").config({ path: ".env" });
 
 const polybase = () => {
 
-    const tablename = process.env.POLYBASE_NAMESPACE;
+    const tablename = process.env.NEXT_PUBLIC_POLYBASE_NAMESPACE;
 
     // TODO: make db private
     const db = new Polybase({
@@ -11,7 +10,7 @@ const polybase = () => {
     });
 
     const insert = async ({
-        collection = "Bill",
+        collection = "Bills",
         id,
         txnHash,
         publicKey,
@@ -25,12 +24,11 @@ const polybase = () => {
         memo,
         createdAt
     }) => {
-        const { data: itemData } = await db.collection("Item").create(items);
+        const { data: itemData } = await db.collection("Item").create(txnHash).set(items);
 
-        const { data: payerData } = await db.collection("Payer").create(payers);
+        const { data: payerData } = await db.collection("Payer").create(txnHash).set(payers);
 
-        const { data } = await db.collection(collection).create([
-            id,
+        const { data } = await db.collection(collection).create(id).set({
             txnHash,
             publicKey,
             recipient,
@@ -42,39 +40,51 @@ const polybase = () => {
             payerData,
             memo,
             createdAt
-        ]);
+        });
 
         return data;
     }
 
-
-    const find = async ({ collection = "Bill", field = "", value = "", op = "==" }) => {
+    const find = async ({ collection = "Bills", field = "", value = "", op = "==" }) => {
         const results = await db.collection(collection).where(field, op, value).get();
         return results;
     }
 
-    const findAll = async ({ collection = "Bill" }) => {
+    const findAll = async ({ collection = "Bills" }) => {
         const results = await db.collection(collection).get();
         return results;
     }
 
-    const findById = async ({ collection = "Bill", id }) => {
+    const findById = async ({ collection = "Bills", id }) => {
         const results = await db.collection(collection).record(id).get();
         return results;
     }
 
-    const findByPhonenumber = async ({ collection = "Bill", phonenumber }) => {
-        const result = (await find({ collection, field: "phonenumber", value: phonenumber, op: "==" })).data[0];
-        return result?.data;
+    const updatePayer = async ({ collection = "Payer", id, ...updateInfo }) => {
+        const {
+            txnHash,
+            account,
+            amount,
+            amountPaid,
+            status,
+            createdAt
+        } = updateInfo;
+
+        const recordData = await db.collection(collection)
+            .record(id)
+            .call("update", [
+                txnHash,
+                account,
+                amount,
+                amountPaid,
+                status,
+                createdAt
+            ]);
+
+        return recordData;
     }
 
-    const findLangByPhonenumber = async ({ collection = "Bill", phonenumber }) => {
-        const { data } = (await find({ collection, field: "phonenumber", value: phonenumber, op: "==" })).data[0];
-
-        return data["lang"];
-    }
-
-    const update = async ({ collection = "Bill", id, ...updateInfo }) => {
+    const updateBill = async ({ collection = "Bills", id, ...updateInfo }) => {
         const {
             txnHash,
             publicKey,
@@ -112,8 +122,6 @@ const polybase = () => {
         getTablename: () => tablename,
         insert,
         findById,
-        findByPhonenumber,
-        findLangByPhonenumber,
         find,
         findAll,
         update

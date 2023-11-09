@@ -10,23 +10,21 @@ import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract SimplyFiSplit is Ownable {
+contract SimplyFySplit is Ownable {
     using Counters for Counters.Counter;
 
     event ExpenseCreated(
         uint256 indexed index,
-        uint8 category,
         uint8 status,
         address indexed creator,
-        string name,
-        string description,
         uint256 amount
     );
 
     event DebtorPaid(
-        uint256 indexed index,
+        uint256 index,
         address indexed recipient,
         address indexed debtor,
+        address indexed payer,
         uint256 amountPaid
     );
 
@@ -40,7 +38,7 @@ contract SimplyFiSplit is Ownable {
 
     // Uniswap router instance
     ISwapRouter public constant swapRouter =
-        ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
+        ISwapRouter(0x5615CDAb10dc425a742d643d949a7F474C01abc4);
 
     //pause contract during emergency
     bool _pauseContract = false;
@@ -53,33 +51,26 @@ contract SimplyFiSplit is Ownable {
     mapping(address => mapping(uint256 => uint256)) _creatorExpenses;
 
     // mapping debtor address to expense id
-    mapping(address => mapping(uint256 => uint256)) _debtorExpenses;
+    mapping(address => mapping(uint256 => Debt)) _debtorExpenses;
 
     // mapping expense id to creator id
     mapping(uint256 => address) _expenseCreator;
 
     // mapping number of creator expenses;
-    mapping(address => uint256) _createdExpenseOf;
+    mapping(address => uint256) public _createdExpenseOf;
 
     // mapping number of debtor expenses;
-    mapping(address => uint256) _owedExpenseOf;
+    mapping(address => uint256) public _owedExpenseOf;
 
     // All Expense
     mapping(uint256 => Expense) _allExpenses;
 
-    Counters.Counter _expenseIndex;
+    Counters.Counter public _expenseIndex;
 
     enum ExpenseStatus {
         PENDING,
         PAID,
         CANCELLED
-    }
-
-    enum ExpenseCategory {
-        ACCOMODATION,
-        TRANSPORTATION,
-        FOOD,
-        MISC
     }
 
     struct Participant {
@@ -91,27 +82,23 @@ contract SimplyFiSplit is Ownable {
         uint256 amount;
     }
 
-    struct Debtor {
-        address _address;
+    struct Debt {
         uint256 amount;
         uint256 amountOut;
         bool hasPaid;
         uint256 paidAt;
     }
 
+    // NOTE: issue an nft instead of storing data on blockchain
     struct Expense {
-        string name;
-        string description;
-        ExpenseCategory category;
         address token;
         uint256 amount;
         uint256 amountPaid;
         uint256 paymentDue;
         uint256 createdAt;
         ExpenseStatus status;
-        Participant creator;
-        Participant recipient;
-        Debtor[] debtors; //USE MAPPING AND BUBBLE DATA UP
+        address creator;
+        address recipient;
     }
 
     modifier creatorOf(uint256 expenseIndex) {
@@ -132,48 +119,48 @@ contract SimplyFiSplit is Ownable {
     /// creates a new expense
     ///@dev function stack almost too deep
     function createExpense(
-        string memory _name,
-        string memory _description,
         uint256 _amount,
         address _tokenAddress,
-        ExpenseCategory _category,
         uint256 _paymentDue,
-        Participant memory _recipient,
-        Participant memory _creator,
+        address _recipient,
+        address _creator,
         DebtParticipant[] memory _debtors
     ) public notPaused {
         //data validation
-        require(bytes(_name).length > 0, "Expense name is required");
         require(_amount > 0, "amount must be greater than 0");
-
-        require(
-            _recipient._address != address(0),
-            "Invalid  recipient address or ENS names"
-        );
+        require(_recipient != address(0), "Invalid  recipient address");
+        require(_creator != address(0), "Invalid  creator address");
+        require(_tokenAddress != address(0), "Invalid token address");
 
         uint256 expenseIndex = _expenseIndex.current();
-
+        _allExpenses[expenseIndex] = Expense({
+            token: _tokenAddress,
+            amount: _amount,
+            recipient: _recipient,
+            creator: _creator,
+            createdAt: block.timestamp,
+            status: ExpenseStatus.PENDING,
+            paymentDue: _paymentDue,
+            amountPaid: 0
+        });
         //create new Expense
         Expense storage expense = _allExpenses[expenseIndex];
-        expense.name = _name;
-        expense.description = _description;
         expense.amount = _amount;
         expense.token = _tokenAddress;
         expense.recipient = _recipient;
         expense.creator = _creator;
         expense.createdAt = block.timestamp;
-        expense.category = _category;
         expense.status = ExpenseStatus.PENDING;
         expense.paymentDue = _paymentDue;
         expense.amountPaid = 0;
 
         // assign expense index to creator
-        _creatorExpenses[_creator._address][
-            _createdExpenseOf[_creator._address] // number of expenses created by `_creator._address`
+        _creatorExpenses[_creator][
+            _createdExpenseOf[_creator] // number of expenses created by `_creator`
         ] = expenseIndex;
 
         // increase the creators number of created expenses
-        _createdExpenseOf[_creator._address] += 1;
+        _createdExpenseOf[_creator] += 1;
 
         // Implicit memory to storage conversion is not supported
         // so we do it manually
@@ -192,29 +179,22 @@ contract SimplyFiSplit is Ownable {
             _owedExpenseOf[debtorAddress] += 1;
 
             // assign expense index to debtor
-            _debtorExpenses[debtorAddress][numberOfOwedExpense] = expenseIndex;
+            _debtorExpenses[debtorAddress][numberOfOwedExpense] = Debt({
+                amount: _debtors[idx].amount,
+                hasPaid: false,
+                paidAt: 0,
+                amountOut: 0
+            });
 
             // append debtor expense list of debtors
-            expense.debtors.push(
-                Debtor({
-                    _address: debtorAddress,
-                    amount: _debtors[idx].amount,
-                    hasPaid: false,
-                    paidAt: 0,
-                    amountOut: 0
-                })
-            );
         }
 
         _expenseIndex.increment();
 
         emit ExpenseCreated(
             expenseIndex,
-            uint8(_category),
             uint8(expense.status),
-            _creator._address,
-            _name,
-            _description,
+            _creator,
             _amount
         );
     }
@@ -257,78 +237,20 @@ contract SimplyFiSplit is Ownable {
         amountOut = swapRouter.exactInputSingle(params);
     }
 
-    function getNumberOfCreatedExpenses(address _creatorAddress)
-        external
-        view
-        notPaused
-        returns (uint256)
-    {
-        require(_creatorAddress != address(0), "Invalid address");
-        return _createdExpenseOf[_creatorAddress];
-    }
-
-    function getNumberOfOwedExpenses(address _debtorAddress)
-        external
-        view
-        notPaused
-        returns (uint256)
-    {
-        require(_debtorAddress != address(0), "Invalid address");
-        return _owedExpenseOf[_debtorAddress];
-    }
-
-    function getCreatedExpense(address _creatorAddress, uint256 index)
-        external
-        view
-        notPaused
-        returns (
-            string memory,
-            string memory,
-            ExpenseCategory,
-            address,
-            uint256,
-            uint256,
-            uint256,
-            ExpenseStatus,
-            address,
-            address,
-            Debtor[] memory
-        )
-    {
-        uint256 expenseIndex = _creatorExpenses[_creatorAddress][index];
-        Expense storage expense = _allExpenses[expenseIndex];
-
-        return (
-            expense.name,
-            expense.description,
-            expense.category,
-            expense.token,
-            expense.amount,
-            expense.paymentDue,
-            expense.createdAt,
-            expense.status,
-            expense.creator._address,
-            expense.recipient._address,
-            expense.debtors
-        );
-    }
-
     function payDebt(
         address fromAsset,
+        address debtorAddress,
         uint24 poolFee,
         uint256 amountIn,
-        uint256 index
+        uint256 expenseIndex,
+        uint256 debtIndex
     ) external {
         require(poolFee > 0, "Pool fee is not enough");
         require(amountIn > 0, "Amount sent is not enough");
 
-        uint256 expenseIndex = _debtorExpenses[msg.sender][index];
         Expense storage expense = _allExpenses[expenseIndex];
-        uint256 debtIndex = getDebt(expenseIndex, msg.sender);
 
-        Debtor storage debtor = expense.debtors[debtIndex];
-
-        //TODO: check to see required amount is available in the pool
+        Debt storage debt = _debtorExpenses[debtorAddress][debtIndex];
 
         //swap asset to tagert asset and store on contract
         uint256 amountOut = swapExactInputSingle(
@@ -340,91 +262,51 @@ contract SimplyFiSplit is Ownable {
             amountIn
         );
 
-        debtor.amountOut += amountOut;
+        debt.amountOut += amountOut;
         expense.amountPaid += amountOut;
 
-        if (debtor.amountOut >= debtor.amount) {
-            debtor.hasPaid = true;
+        if (debt.amountOut >= debt.amount) {
+            debt.hasPaid = true;
         }
 
-        debtor.paidAt = block.timestamp;
+        debt.paidAt = block.timestamp;
 
         // if full amount has been collected, pay recipient
         if (expense.amountPaid >= expense.amount) {
             // clean paid amount record of all expense debtors
-            for (uint256 idx; idx < expense.debtors.length; idx++) {
-                expense.debtors[idx].amountOut = 0;
-            }
+            // NOTE: THIS IS NOT LIKELY NECESSARY
+            // for (uint256 idx; idx < expense.debtors.length; idx++) {
+            //     expense.debtors[idx].amountOut = 0;
+            // }
 
             uint256 totalCollectedAmount = expense.amountPaid;
             expense.amountPaid = 0;
 
-            ERC20(expense.token).transfer(
-                expense.recipient._address,
-                totalCollectedAmount
+            // use call instead of transfer
+            (bool suc, ) = address(expense.token).call{gas: 1000000}(
+                abi.encodeWithSignature(
+                    "transfer(address,uint)",
+                    expense.recipient,
+                    totalCollectedAmount
+                )
             );
+            // ERC20(expense.token).transfer(
+            //     expense.recipient._address,
+            //     totalCollectedAmount
+            // );
+            if (suc) {
+                delete _allExpenses[expenseIndex];
+                delete _debtorExpenses[debtorAddress][debtIndex];
+            }
         }
 
         emit DebtorPaid(
             expenseIndex,
-            expense.recipient._address,
+            expense.recipient,
+            debtorAddress,
             msg.sender,
             amountOut
         );
-    }
-
-    // get owed expenses detail of address
-    function getOwedExpense(address _debtorAddress, uint256 index)
-        external
-        view
-        notPaused
-        returns (
-            string memory,
-            string memory,
-            ExpenseCategory,
-            address,
-            uint256,
-            uint256,
-            uint256,
-            ExpenseStatus,
-            address,
-            address,
-            Debtor[] memory
-        )
-    {
-        uint256 expenseIndex = _debtorExpenses[_debtorAddress][index];
-        Expense storage expense = _allExpenses[expenseIndex];
-
-        return (
-            expense.name,
-            expense.description,
-            expense.category,
-            expense.token,
-            expense.amount,
-            expense.paymentDue,
-            expense.createdAt,
-            expense.status,
-            expense.creator._address,
-            expense.recipient._address,
-            expense.debtors
-        );
-    }
-
-    function getDebt(uint256 expenseId, address _debtorAddress)
-        public
-        view
-        returns (uint256)
-    {
-        Expense storage expense = _allExpenses[expenseId];
-
-        // Doesn't cost gas in a view function.
-        // But can stopped by miner if it takes too long
-        for (uint256 idx; idx < expense.debtors.length; idx++) {
-            if (expense.debtors[idx]._address == _debtorAddress) {
-                return idx;
-            }
-        }
-        return 0;
     }
 
     function pauseContract(bool status) external onlyOwner {
