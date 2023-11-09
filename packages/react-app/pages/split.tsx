@@ -55,38 +55,39 @@ const SplitForm = ({ form }) => {
     const { address } = useAccount();
     const [fields, setFields] = useState([
         {
-            name: "recipient",
-            value: address,
-        },
-        {
             name: "pay_token",
             value: "cUSD",
         },
         {
-            name: "descriptions",
+            name: "items",
             value: [{}],
         },
         {
             name: "payers",
             value: [{}],
-        },
+        },{
+            name: "amount_due",
+            value: 0
+        }
     ]);
     // const [totalAmountWithoutTax, setTotalAmountWithoutTax] = useState(0);
     // const [totalTax, setTotalTax] = useState(0);
     const [totalAmountDue, setTotalAmountDue] = useState(0);
     // const [] = useState(0);
-    
 
     return (
         <Form
             form={form}
-            fields={fields}
+            fields={[...fields, {
+                name: "recipient",
+                value: address,
+            },]}
             onFieldsChange={(fieldData, allFieldData) => {
-                
                 let totalAmount = 0;
+
                 allFieldData.forEach(
                     ({ name, value, validated }, index, allValues) => {
-                        if (name?.includes("descriptions") && validated) {
+                        if (name?.includes("items") && validated) {
                             const qtyFieldName = [name[0], name[1], "quantity"];
                             const costFieldName = [
                                 name[0],
@@ -113,9 +114,15 @@ const SplitForm = ({ form }) => {
                     }
                 );
                 // console.log(totalAmount/3);
-                setTotalAmountDue(totalAmount/3);
+                // setTotalAmountDue(totalAmount / 3);
+                if(totalAmount > 0){
+                    form.setFieldValue("amount_due", totalAmount / 3);
+                }
+                // console.log(fieldData, allFieldData);
                 // setFields(allFieldData);
-
+            }}
+            onFinish={(values) => {
+                console.log(values)
             }}
         >
             <Form.Item
@@ -144,31 +151,29 @@ const SplitForm = ({ form }) => {
                     ))}
                 </Radio.Group>
             </Form.Item>
-            <Space>
-                <Form.Item name="Category" label={<b>Bill category</b>}>
-                    <Input placeholder="Category associated to your invoice" />
-                </Form.Item>
-                <Form.Item
-                    name={"tags"}
-                    label={<b>Tags associated with bill</b>}
-                    rules={[
-                        {
-                            required: false,
-                        },
-                    ]}
-                >
-                    <Select
-                        mode="tags"
-                        style={{ width: "100%" }}
-                        tokenSeparators={[","]}
-                        options={[]}
-                    />
-                </Form.Item>
-            </Space>
+            <Form.Item name="Category" label={<b>Bill category</b>}>
+                <Input placeholder="Category associated to your invoice" />
+            </Form.Item>
+            <Form.Item
+                name={"tags"}
+                label={<b>Tags associated with bill</b>}
+                rules={[
+                    {
+                        required: false,
+                    },
+                ]}
+            >
+                <Select
+                    mode="tags"
+                    style={{ width: "100%" }}
+                    tokenSeparators={[","]}
+                    options={[]}
+                />
+            </Form.Item>
             <Divider>
                 <Typography.Title level={5}>Cost Descriptions</Typography.Title>
             </Divider>
-            <Form.List name="descriptions">
+            <Form.List name="items">
                 {(fields, { add, remove }) => (
                     <>
                         {fields.map(({ key, name, ...restField }) => (
@@ -246,25 +251,28 @@ const SplitForm = ({ form }) => {
                                 block
                                 icon={<PlusOutlined />}
                             >
-                                Add Description
+                                Add Item
                             </Button>
                         </Form.Item>
                     </>
                 )}
             </Form.List>
             <Divider />
-            <Space direction="vertical">
-                {/* <Typography.Text>
+            <Form.Item name="amount_due" label="Due">
+                <Input type="number" bordered={false} contentEditable={false} addonBefore={"$"}/>
+            </Form.Item>
+            {/* <Space direction="vertical">
+                <Typography.Text>
                     Total without Tax: ${totalAmountWithoutTax}
                 </Typography.Text>
                 <Typography.Text>Total Tax Amount: ${totalTax}</Typography.Text>
                 <Typography.Text>
                     Total Amount: ${totalAmountWithoutTax - totalTax}
-                </Typography.Text> */}
+                </Typography.Text> 
                 <Typography.Title level={5}>
                     Due: ${totalAmountDue}
                 </Typography.Title>
-            </Space>
+            </Space> */}
             <Divider>
                 <Typography.Title level={5}>Split Details</Typography.Title>
             </Divider>
@@ -299,7 +307,9 @@ const SplitForm = ({ form }) => {
                                     <Input placeholder="Amount" type="number" />
                                 </Form.Item>
                                 <MinusCircleOutlined
-                                    onClick={() => remove(name)}
+                                    onClick={() => {
+                                        remove(name);
+                                    }}
                                 />
                             </Space>
                         ))}
@@ -316,12 +326,14 @@ const SplitForm = ({ form }) => {
                     </>
                 )}
             </Form.List>
-            <Form.Item label="memo">
-                <TextArea rows={4} />
+            <Form.Item label="memo" name="memo">
+                <TextArea rows={4}/>
             </Form.Item>
             <Form.Item>
-                <Button htmlType="submit">Create Bill</Button>
-                <Button htmlType="reset">Cancel</Button>
+                <Space>
+                    <Button htmlType="reset">Cancel</Button>
+                    <Button htmlType="submit" type="primary">Create Bill</Button>
+                </Space>
             </Form.Item>
         </Form>
     );
