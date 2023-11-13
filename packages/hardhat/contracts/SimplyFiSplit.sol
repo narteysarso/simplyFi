@@ -8,12 +8,11 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract SimplyFySplit is Ownable {
     using Counters for Counters.Counter;
 
-    event ExpenseCreated(
+    event BillCreated(
         uint256 indexed index,
         uint8 status,
         address indexed creator,
@@ -28,7 +27,7 @@ contract SimplyFySplit is Ownable {
         uint256 amountPaid
     );
 
-    event ExpenseCancelled(
+    event BillCancelled(
         uint256 indexed index,
         address indexed creator,
         address indexed recipient
@@ -47,27 +46,27 @@ contract SimplyFySplit is Ownable {
 
     address _lpTokenContractAddress;
 
-    // mapping creator address to expense id
-    mapping(address => mapping(uint256 => uint256)) _creatorExpenses;
+    // mapping creator address to bill id
+    mapping(address => mapping(uint256 => uint256)) _creatorBills;
 
-    // mapping debtor address to expense id
-    mapping(address => mapping(uint256 => Debt)) _debtorExpenses;
+    // mapping debtor address to bill id
+    mapping(address => mapping(uint256 => Debt)) _debtorBills;
 
-    // mapping expense id to creator id
-    mapping(uint256 => address) _expenseCreator;
+    // mapping bill id to creator id
+    mapping(uint256 => address) _billCreator;
 
-    // mapping number of creator expenses;
-    mapping(address => uint256) public _createdExpenseOf;
+    // mapping number of creator bills;
+    mapping(address => uint256) public _createdBillOf;
 
-    // mapping number of debtor expenses;
-    mapping(address => uint256) public _owedExpenseOf;
+    // mapping number of debtor bills;
+    mapping(address => uint256) public _owedBillOf;
 
-    // All Expense
-    mapping(uint256 => Expense) _allExpenses;
+    // All Bill
+    mapping(uint256 => Bill) _allBills;
 
-    Counters.Counter public _expenseIndex;
+    Counters.Counter public _billIndex;
 
-    enum ExpenseStatus {
+    enum BillStatus {
         PENDING,
         PAID,
         CANCELLED
@@ -90,20 +89,20 @@ contract SimplyFySplit is Ownable {
     }
 
     // NOTE: issue an nft instead of storing data on blockchain
-    struct Expense {
+    struct Bill {
         address token;
         uint256 amount;
         uint256 amountPaid;
         uint256 paymentDue;
         uint256 createdAt;
-        ExpenseStatus status;
+        BillStatus status;
         address creator;
         address recipient;
     }
 
-    modifier creatorOf(uint256 expenseIndex) {
+    modifier creatorOf(uint256 billIndex) {
         require(
-            _expenseCreator[expenseIndex] == msg.sender,
+            _billCreator[billIndex] == msg.sender,
             "Access denied. Only creator"
         );
         _;
@@ -116,9 +115,9 @@ contract SimplyFySplit is Ownable {
 
     constructor(address initialOwner) Ownable(initialOwner) {}
 
-    /// creates a new expense
+    /// creates a new bill
     ///@dev function stack almost too deep
-    function createExpense(
+    function createBill(
         uint256 _amount,
         address _tokenAddress,
         uint256 _paymentDue,
@@ -132,35 +131,35 @@ contract SimplyFySplit is Ownable {
         require(_creator != address(0), "Invalid  creator address");
         require(_tokenAddress != address(0), "Invalid token address");
 
-        uint256 expenseIndex = _expenseIndex.current();
-        _allExpenses[expenseIndex] = Expense({
+        uint256 billIndex = _billIndex.current();
+        _allBills[billIndex] = Bill({
             token: _tokenAddress,
             amount: _amount,
             recipient: _recipient,
             creator: _creator,
             createdAt: block.timestamp,
-            status: ExpenseStatus.PENDING,
+            status: BillStatus.PENDING,
             paymentDue: _paymentDue,
             amountPaid: 0
         });
-        //create new Expense
-        Expense storage expense = _allExpenses[expenseIndex];
-        expense.amount = _amount;
-        expense.token = _tokenAddress;
-        expense.recipient = _recipient;
-        expense.creator = _creator;
-        expense.createdAt = block.timestamp;
-        expense.status = ExpenseStatus.PENDING;
-        expense.paymentDue = _paymentDue;
-        expense.amountPaid = 0;
+        //create new Bill
+        Bill storage bill = _allBills[billIndex];
+        bill.amount = _amount;
+        bill.token = _tokenAddress;
+        bill.recipient = _recipient;
+        bill.creator = _creator;
+        bill.createdAt = block.timestamp;
+        bill.status = BillStatus.PENDING;
+        bill.paymentDue = _paymentDue;
+        bill.amountPaid = 0;
 
-        // assign expense index to creator
-        _creatorExpenses[_creator][
-            _createdExpenseOf[_creator] // number of expenses created by `_creator`
-        ] = expenseIndex;
+        // assign bill index to creator
+        _creatorBills[_creator][
+            _createdBillOf[_creator] // number of bills created by `_creator`
+        ] = billIndex;
 
-        // increase the creators number of created expenses
-        _createdExpenseOf[_creator] += 1;
+        // increase the creators number of created bills
+        _createdBillOf[_creator] += 1;
 
         // Implicit memory to storage conversion is not supported
         // so we do it manually
@@ -172,28 +171,28 @@ contract SimplyFySplit is Ownable {
                 "invalid address debtor or ENS name"
             );
 
-            //get number of expense of debtor
-            uint256 numberOfOwedExpense = _owedExpenseOf[debtorAddress];
+            //get number of bill of debtor
+            uint256 numberOfOwedBill = _owedBillOf[debtorAddress];
 
-            // increase the number of debtors owed expenses;
-            _owedExpenseOf[debtorAddress] += 1;
+            // increase the number of debtors owed bills;
+            _owedBillOf[debtorAddress] += 1;
 
-            // assign expense index to debtor
-            _debtorExpenses[debtorAddress][numberOfOwedExpense] = Debt({
+            // assign bill index to debtor
+            _debtorBills[debtorAddress][numberOfOwedBill] = Debt({
                 amount: _debtors[idx].amount,
                 hasPaid: false,
                 paidAt: 0,
                 amountOut: 0
             });
 
-            // append debtor expense list of debtors
+            // append debtor bill list of debtors
         }
 
-        _expenseIndex.increment();
+        _billIndex.increment();
 
-        emit ExpenseCreated(
-            expenseIndex,
-            uint8(expense.status),
+        emit BillCreated(
+            billIndex,
+            uint8(bill.status),
             _creator,
             _amount
         );
@@ -242,20 +241,20 @@ contract SimplyFySplit is Ownable {
         address debtorAddress,
         uint24 poolFee,
         uint256 amountIn,
-        uint256 expenseIndex,
+        uint256 billIndex,
         uint256 debtIndex
     ) external {
         require(poolFee > 0, "Pool fee is not enough");
         require(amountIn > 0, "Amount sent is not enough");
 
-        Expense storage expense = _allExpenses[expenseIndex];
+        Bill storage bill = _allBills[billIndex];
 
-        Debt storage debt = _debtorExpenses[debtorAddress][debtIndex];
+        Debt storage debt = _debtorBills[debtorAddress][debtIndex];
 
         //swap asset to tagert asset and store on contract
         uint256 amountOut = swapExactInputSingle(
             fromAsset,
-            expense.token,
+            bill.token,
             msg.sender,
             address(this),
             poolFee,
@@ -263,7 +262,7 @@ contract SimplyFySplit is Ownable {
         );
 
         debt.amountOut += amountOut;
-        expense.amountPaid += amountOut;
+        bill.amountPaid += amountOut;
 
         if (debt.amountOut >= debt.amount) {
             debt.hasPaid = true;
@@ -272,37 +271,37 @@ contract SimplyFySplit is Ownable {
         debt.paidAt = block.timestamp;
 
         // if full amount has been collected, pay recipient
-        if (expense.amountPaid >= expense.amount) {
-            // clean paid amount record of all expense debtors
+        if (bill.amountPaid >= bill.amount) {
+            // clean paid amount record of all bill debtors
             // NOTE: THIS IS NOT LIKELY NECESSARY
-            // for (uint256 idx; idx < expense.debtors.length; idx++) {
-            //     expense.debtors[idx].amountOut = 0;
+            // for (uint256 idx; idx < bill.debtors.length; idx++) {
+            //     bill.debtors[idx].amountOut = 0;
             // }
 
-            uint256 totalCollectedAmount = expense.amountPaid;
-            expense.amountPaid = 0;
+            uint256 totalCollectedAmount = bill.amountPaid;
+            bill.amountPaid = 0;
 
             // use call instead of transfer
-            (bool suc, ) = address(expense.token).call{gas: 1000000}(
+            (bool suc, ) = address(bill.token).call{gas: 1000000}(
                 abi.encodeWithSignature(
                     "transfer(address,uint)",
-                    expense.recipient,
+                    bill.recipient,
                     totalCollectedAmount
                 )
             );
-            // ERC20(expense.token).transfer(
-            //     expense.recipient._address,
+            // ERC20(bill.token).transfer(
+            //     bill.recipient._address,
             //     totalCollectedAmount
             // );
             if (suc) {
-                delete _allExpenses[expenseIndex];
-                delete _debtorExpenses[debtorAddress][debtIndex];
+                delete _allBills[billIndex];
+                delete _debtorBills[debtorAddress][debtIndex];
             }
         }
 
         emit DebtorPaid(
-            expenseIndex,
-            expense.recipient,
+            billIndex,
+            bill.recipient,
             debtorAddress,
             msg.sender,
             amountOut
