@@ -124,7 +124,8 @@ const polybase = () => {
         findById,
         find,
         findAll,
-        update
+        updatePayer,
+        updateBill
     });
 
 
