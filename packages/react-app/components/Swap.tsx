@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import {
     Form,
+    Cascader,
     Input,
     Select,
     Space,
+    Image,
     Avatar,
     Divider,
     Button,
@@ -26,6 +28,7 @@ const { Option } = Select;
 const FromSelector = ({
     allTokens,
     defaultValue,
+    selectedToken = [],
     onChange,
 }) => (
     <Select
@@ -35,7 +38,7 @@ const FromSelector = ({
         onChange={onChange}
     >
         {allTokens?.map((tk, idx) => (
-            <Option key={idx} value={tk}>
+            <Option key={idx} disabled={selectedToken.includes(tk)} value={tk}>
                 <Avatar
                     size={24}
                     style={{ backgroundColor: "whitesmoke" }}
@@ -50,7 +53,7 @@ const FromSelector = ({
 const ToSelector = ({
     allTokens,
     defaultValue,
-    value,
+    selectedToken = [],
     onChange,
 }) => (
     <Select
@@ -58,10 +61,9 @@ const ToSelector = ({
         defaultValue={defaultValue}
         style={{ minWidth: "50vw" }}
         onChange={onChange}
-        value={value}
     >
         {allTokens?.map((tk, idx) => (
-            <Option key={idx} value={tk}>
+            <Option key={idx} disabled={selectedToken.includes(tk)} value={tk}>
                 <Avatar
                     size={24}
                     style={{ backgroundColor: "whitesmoke" }}
@@ -73,11 +75,11 @@ const ToSelector = ({
     </Select>
 );
 
-export default function Send() {
+export default function Swap() {
     const tokens = Object.keys(TOKENS);
     const [selectedTokens, setSelectedToken] = useState([
         DEFAULT_ASSETS[0],
-        DEFAULT_ASSETS[0],
+        DEFAULT_ASSETS[1],
     ]);
     const [tokenBalances, setTokenBalances] = useState([0, 0]);
     const [autoSpillage, setAutoSpillage] = useState(true);
@@ -93,8 +95,7 @@ export default function Send() {
     const provider = useEthersProvider();
 
     const onFromTokenChange = (newtoken) => {
-        setSelectedToken((prev) => [newtoken, newtoken]);
-        
+        setSelectedToken((prev) => [newtoken, prev.at(1)]);
     };
 
     const onToTokenChange = (newtoken) => {
@@ -107,17 +108,7 @@ export default function Send() {
         amountIn: number
     ) => {
         try {
-            console.log(tokenA, tokenB, amountIn)
             setLoadingQoute(true);
-            if(!amountIn) return;
-            if (tokenA === tokenB) {
-                setQoute(amountIn);
-                form.setFieldValue("output", amountIn);
-                setRatio(1);
-                setNetworkCost(0);
-                setTxnData(null);
-                return;
-            }
             const [transaction, quoteAmountOut, ratio, networkCost] =
                 await getPrice({
                     inToken: tokenA,
@@ -135,7 +126,6 @@ export default function Send() {
             setNetworkCost(networkCost);
             setTxnData(transaction);
         } catch (error) {
-            console.log(error)
         } finally {
             setLoadingQoute(false);
         }
@@ -153,16 +143,12 @@ export default function Send() {
         getCurrentBalances().then(([balance1, balance2]) => {
             setTokenBalances([balance1.toString(), balance2.toString()]);
         });
-        getQoute(
-            selectedTokens[0],
-            selectedTokens[1],
-            form.getFieldValue("input")
-        ).then(()=>{}).catch(console.log);
-        // console.log('ccall')
-    }, [selectedTokens, isConnected, address]);
+        getQoute(selectedTokens[0], selectedTokens[1], form.getFieldValue("input"))
+    }, [selectedTokens]);
+
 
     return (
-        <Card title="Send Token">
+        <Card title="Swap">
             <Form
                 form={form}
                 name="swap-tokens-form"
@@ -174,12 +160,8 @@ export default function Send() {
                         parseFloat(val?.input || 0)
                     )
                 }
-               
             >
-                <Form.Item label="Recipient" name="recipient">
-                    <Input size="large" />
-                </Form.Item>
-                <Form.Item label="Send Token" name="input" initialValue={0}>
+                <Form.Item name="input" initialValue={0}>
                     <Input
                         type="number"
                         size="large"
@@ -187,6 +169,7 @@ export default function Send() {
                             <FromSelector
                                 allTokens={tokens}
                                 defaultValue={selectedTokens[0]}
+                                selectedToken={selectedTokens}
                                 onChange={onFromTokenChange}
                             />
                         }
@@ -195,23 +178,24 @@ export default function Send() {
                 <Typography.Paragraph style={{ textAlign: "end" }}>
                     Balance: {tokenBalances[0]} {selectedTokens[0]}
                 </Typography.Paragraph>
-
-                <Form.Item
-                    label="Recieved Token"
-                    name="output"
-                    initialValue={0}
-                >
+                <Divider>
+                    <Button
+                        shape="circle"
+                        size="large"
+                        icon={<SwapOutlined style={{ rotate: "90deg" }} />}
+                    />
+                </Divider>
+                <Form.Item name="output" initialValue={0}>
                     <Input
                         type="number"
                         size="large"
                         value={qoute}
-                        disabled={true}
                         addonBefore={
                             <ToSelector
                                 allTokens={tokens}
                                 defaultValue={selectedTokens[1]}
-                                value={selectedTokens[1]}
-                                onChange={(val) => onToTokenChange(val)}
+                                selectedToken={selectedTokens}
+                                onChange={onToTokenChange}
                             />
                         }
                     />
@@ -301,13 +285,27 @@ export default function Send() {
                         </Collapse.Panel>
                     </Collapse>
                 )}
-                <Divider />
-
+                <Divider>Transaction Settings</Divider>
+                <Form.Item label="Spillage Tolerance">
+                    <Space align="baseline">
+                        <Form.Item name="spillage" initialValue={spillage}>
+                            <Input disabled addonAfter="%" />
+                        </Form.Item>
+                        <Switch checked={autoSpillage} /> Auto
+                    </Space>
+                </Form.Item>
+                <Form.Item
+                    label="Transaction Deadline"
+                    name="txn_deadline"
+                    initialValue={20}
+                >
+                    <Input addonAfter="minutes" />
+                </Form.Item>
                 <Form.Item
                     style={{ justifyContent: "flex-end", display: "flex" }}
                 >
                     <Button htmlType="submit" disabled={!isConnected}>
-                        Send
+                        Swap
                     </Button>
                 </Form.Item>
             </Form>

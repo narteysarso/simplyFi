@@ -11,22 +11,32 @@ export const TOKENS = // process.env.NEXT_PUBLIC_NODE_ENV !== "production" ? {
 //     "SHIB": "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE"
 // } :  
 {
-    "CELO":"0x471EcE3750Da237f93B8E339c536989b8978a438",
-    "WETH":"0x66803FB87aBd4aaC3cbB3fAd7C3aa01f6F3FB207",
-    "cEUR":"0xD8763CBa276a3738E6DE85b4b3bF5FDed6D6cA73",
-    "cUSD":"0x765de816845861e75a25fca122bb6898b8b1282a",
-    "USDC":"0x37f750B7cC259A2f741AF45294f6a16572CF5cAd",
+    "CELO": "0x471EcE3750Da237f93B8E339c536989b8978a438",
+    "WETH": "0x66803FB87aBd4aaC3cbB3fAd7C3aa01f6F3FB207",
+    "cEUR": "0xD8763CBa276a3738E6DE85b4b3bF5FDed6D6cA73",
+    "cUSD": "0x765de816845861e75a25fca122bb6898b8b1282a",
+    "USDC": "0x37f750B7cC259A2f741AF45294f6a16572CF5cAd",
+    "0x471EcE3750Da237f93B8E339c536989b8978a438":"CELO",
+    "0x66803FB87aBd4aaC3cbB3fAd7C3aa01f6F3FB207":"WETH",
+    "0xD8763CBa276a3738E6DE85b4b3bF5FDed6D6cA73":"cEUR",
+    "0x765de816845861e75a25fca122bb6898b8b1282a":"cUSD",
+    "0x37f750B7cC259A2f741AF45294f6a16572CF5cAd":"USDC",
 }
 
 export const TokenIcons = {
-    "WETH" : "https://raw.githubusercontent.com/ubeswap/default-token-list/master/assets/asset_cETH.svg",
-    "cEUR" : "https://raw.githubusercontent.com/ubeswap/default-token-list/master/assets/asset_cEUR.png",
-    "cUSD" : "https://s2.coinmarketcap.com/static/img/coins/64x64/7236.png",
-    "USDC" : "https://s2.coinmarketcap.com/static/img/coins/64x64/3408.png",
-    "CELO": "https://raw.githubusercontent.com/ubeswap/default-token-list/master/assets/asset_CELO.png"
+    "WETH": "https://raw.githubusercontent.com/ubeswap/default-token-list/master/assets/asset_cETH.svg",
+    "cEUR": "https://raw.githubusercontent.com/ubeswap/default-token-list/master/assets/asset_cEUR.png",
+    "cUSD": "https://s2.coinmarketcap.com/static/img/coins/64x64/7236.png",
+    "USDC": "https://s2.coinmarketcap.com/static/img/coins/64x64/3408.png",
+    "CELO": "https://raw.githubusercontent.com/ubeswap/default-token-list/master/assets/asset_CELO.png",
+    "0x471EcE3750Da237f93B8E339c536989b8978a438": "https://raw.githubusercontent.com/ubeswap/default-token-list/master/assets/asset_CELO.png",
+    "0x66803FB87aBd4aaC3cbB3fAd7C3aa01f6F3FB207": "https://raw.githubusercontent.com/ubeswap/default-token-list/master/assets/asset_cETH.svg",
+    "0xD8763CBa276a3738E6DE85b4b3bF5FDed6D6cA73": "https://raw.githubusercontent.com/ubeswap/default-token-list/master/assets/asset_cEUR.png",
+    "0x765de816845861e75a25fca122bb6898b8b1282a": "https://s2.coinmarketcap.com/static/img/coins/64x64/7236.png",
+    "0x37f750B7cC259A2f741AF45294f6a16572CF5cAd": "https://s2.coinmarketcap.com/static/img/coins/64x64/3408.png",
 }
 
-export const DEFAULT_ASSETS = ["CELO", "cUSD", "cEUR","WETH",  "USDC" ];
+export const DEFAULT_ASSETS = ["CELO", "cUSD", "cEUR", "WETH", "USDC"];
 export const DEFAULT_ASSETS_DATA = [
     {
         asset: 'CELO',

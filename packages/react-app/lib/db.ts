@@ -1,49 +1,93 @@
-const { Polybase } = require("@polybase/client");
+import { Polybase } from "@polybase/client";
+import { v4 as uuidv4 } from "uuid";
 
-const polybase = () => {
+export const polybase = () => {
 
     const tablename = process.env.NEXT_PUBLIC_POLYBASE_NAMESPACE;
 
     // TODO: make db private
     const db = new Polybase({
-        defaultNamespace: tablename
+        defaultNamespace: tablename,
     });
 
-    const insert = async ({
+    const createBill = async ({
         collection = "Bills",
         id,
         txnHash,
-        publicKey,
         recipient,
         payToken,
+        tokenAddress,
         category,
+        creator,
         tags,
         items,
         amountDue,
         payers,
         memo,
-        createdAt
+        paymentDue = Date.now(),
+        createdAt = Date.now()
     }) => {
-        const { data: itemData } = await db.collection("Item").create(txnHash).set(items);
 
-        const { data: payerData } = await db.collection("Payer").create(txnHash).set(payers);
+        
+        // needs to be replaced with real txn Hash
+        const {itemIds, itemData} = items.reduce((prev, { description, quantity, unitcost, amount }, idx ) => {
 
-        const { data } = await db.collection(collection).create(id).set({
+            const itemId = uuidv4();
+            const itemData = db.collection("Item").create([
+                itemId,
+                description,
+                quantity,
+                unitcost,
+                amount,
+                txnHash,
+                createdAt
+            ]);
+            return ({itemIds: [...prev.itemIds, itemId], itemData: [...prev.itemData, itemData]})
+        }, {itemIds: [], itemData: []})
+        
+        // await Promise.all([]);
+
+        const {payerIds, payerData} = payers.reduce((prev, { account, amount }, idx) => {
+
+            const payerId = uuidv4();
+            const payerData =  db.collection("Payer").create([
+                payerId,
+                account,
+                amount,
+                tokenAddress,
+                txnHash,
+                createdAt,
+                paymentDue
+            ])
+
+            return ({payerIds: [...prev.payerIds, payerId], payerData: [...prev.payerData, payerData]});
+
+        }, {payerIds: [], payerData: []})
+
+        await Promise.all([...itemData, ...payerData]);
+
+        // console.log(payerIds,itemIds);
+
+        const billRecord = await db.collection(collection).create([
+            uuidv4(),
             txnHash,
-            publicKey,
             recipient,
-            payToken,
+            creator,
+            tokenAddress,
             category,
-            tags,
-            itemData,
-            amountDue,
-            payerData,
             memo,
-            createdAt
-        });
+            amountDue,
+            payerIds.map((payerId) => db.collection("Payer").record(payerId)),
+            tags,
+            itemIds.map((itemId) => db.collection("Item").record(itemId)),
+            createdAt,
+            paymentDue
+        ]);
 
-        return data;
+        return billRecord;
     }
+
+
 
     const find = async ({ collection = "Bills", field = "", value = "", op = "==" }) => {
         const results = await db.collection(collection).where(field, op, value).get();
@@ -58,6 +102,20 @@ const polybase = () => {
     const findById = async ({ collection = "Bills", id }) => {
         const results = await db.collection(collection).record(id).get();
         return results;
+    }
+
+    const findPayer = async ({ collection = "Payer", field = "", value = "", op = "==" }) => {
+        const {data}= await db.collection(collection).where(field, op, value).sort("createdAt", "desc").get();
+        
+        return data.map(({data}) => data);
+    }
+
+    const findBill = async ({ collection = "Bills", field = "", value = "", op = "==" }) => {
+        const {data}= await db.collection(collection).where(field, op, value)
+        // .sort("createdAt", "desc")
+        .get();
+        
+        return data.map(({data}) => data);
     }
 
     const updatePayer = async ({ collection = "Payer", id, ...updateInfo }) => {
@@ -120,15 +178,15 @@ const polybase = () => {
 
     return Object.freeze({
         getTablename: () => tablename,
-        insert,
+        createBill,
         findById,
         find,
         findAll,
+        findPayer,
+        findBill,
         updatePayer,
         updateBill
     });
 
 
 }
-
-module.exports = polybase;

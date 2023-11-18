@@ -14,6 +14,8 @@
         "@celo/rainbowkit-celo": "^1.0.1",
         "@headlessui/react": "^1.7.14",
         "@heroicons/react": "^2.0.18",
+        "@polybase/auth": "^0.6.6",
+        "@polybase/client": "^0.6.6",
         "@rainbow-me/rainbowkit": "^1.0.2",
         "@tatumio/tatum": "^4.1.14",
         "@uniswap/sdk-core": "^4.0.9",
@@ -26,6 +28,7 @@
         "react": "18.2.0",
         "react-dom": "18.2.0",
         "react-infinite-scroll-component": "^6.1.0",
+        "uuid": "^9.0.1",
         "viem": "^0.3.30",
         "wagmi": "^1.2"
     },

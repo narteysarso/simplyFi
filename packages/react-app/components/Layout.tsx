@@ -4,7 +4,7 @@ import { Layout, Space, Tag } from "antd";
 import Image from "next/image";
 import { useAccount, useBalance, useConnect, } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
-import { celoAlfajores } from "viem/chains";
+import { celoAlfajores, celo} from "viem/chains";
 import ActionButtons from "./ActionButtons";
 
 const { Content } = Layout;
@@ -20,7 +20,7 @@ const MainLayout: FC<Props> = ({ children }) => {
     const { address, isConnected,  } = useAccount();
     const { connect} = useConnect({
         connector: new InjectedConnector(),
-        chainId: celoAlfajores.id
+        chainId: celo.id
     });
     const {data: balance, isLoading: balanceLoading} = useBalance({
       address,
@@ -61,14 +61,14 @@ const MainLayout: FC<Props> = ({ children }) => {
                     </Space>
                 )}
             </Layout.Header>
-            <Content style={{ padding: "0 2vw", height: "auto", minHeight: "80vh"}}>
+            <Content style={{ padding: "0 2vw", height: "auto", minHeight: "80vh", backgroundColor: "white"}}>
                 {children}
                 
             </Content>
-            <Layout.Footer style={{ textAlign: "center" }}>
+            {/* <Layout.Footer style={{ textAlign: "center" }}>
             <ActionButtons />
                 Ant Design ©2023 Created by Ant UED
-            </Layout.Footer>
+            </Layout.Footer> */}
         </Layout>
     );
 };

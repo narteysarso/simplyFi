@@ -1283,6 +1283,49 @@
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-4.9.3.tgz#00d7a8cf35a475b160b3f0293a6403c511099364"
   integrity sha512-He3LieZ1pP2TNt5JbkPA4PNT9WC3gOTOlDcFGJW4Le4QKqwmiNJCRt44APfxMxvq7OugU/cqYuPcSBzOw38DAg==
 
+"@polybase/auth@^0.6.6":
+  version "0.6.6"
+  resolved "https://registry.yarnpkg.com/@polybase/auth/-/auth-0.6.6.tgz#3161ba3089512938fa60372c4272e371a7ce5a1e"
+  integrity sha512-Gk3X9yykj+coRg38EVhIfV+7CgsUakltGHxC3BlIUv2iYab1mgKF2Mh00rNhGGRRuIHQ0zzT6dkD6Cj9COBuKQ==
+  dependencies:
+    penpal "^6.2.2"
+
+"@polybase/client@^0.6.6":
+  version "0.6.6"
+  resolved "https://registry.yarnpkg.com/@polybase/client/-/client-0.6.6.tgz#9dc7feb75344deaef8cdfb12da9c50dac2667501"
+  integrity sha512-yUlNHmvvKkpIrYRFgFHr6uBdWHiUtw+OhBCMCRUyFvlVbSStEJ3B2fbsT04LWX6xTErd4L//xyTyNSUUltwbrg==
+  dependencies:
+    "@polybase/eth" "^0.6.6"
+    "@polybase/polylang" "^0.6.0"
+    axios "0.27.2"
+
+"@polybase/eth@^0.6.6":
+  version "0.6.6"
+  resolved "https://registry.yarnpkg.com/@polybase/eth/-/eth-0.6.6.tgz#5cf4c9395116697784ca3e3eb54104f9281476f4"
+  integrity sha512-c2aTG8eCVDIwUuFkkUHFzdNN7KrWxn6q8QFGcxlorl2wduz+EMpldyfK/l3caWkj2vI8W25LAivk9V/RDEjyUA==
+  dependencies:
+    "@ethersproject/keccak256" "^5.7.0"
+    "@ethersproject/strings" "^5.7.0"
+    "@polybase/util" "^0.6.6"
+
+"@polybase/polylang@^0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@polybase/polylang/-/polylang-0.6.0.tgz#bd8dcb1b6275f9a3e4c9e208be2f7f18da07f955"
+  integrity sha512-yk2JbnNkJDKs2Gnjedra7H1b8H7MCZKaOlo3n+OjjcTlqsZq8Iz472hE0umxDi74zxcsMnIb/qsR6oj6fGKrpw==
+
+"@polybase/util@^0.6.6":
+  version "0.6.6"
+  resolved "https://registry.yarnpkg.com/@polybase/util/-/util-0.6.6.tgz#b133c2406b0e017232a9e427d9a09318cf08860d"
+  integrity sha512-4DiFpJZX/5A/zlPEVVlwvI5U7S5h3jJX9qUU3oOAUuehf+CZijoIfztj264SZHQya8nWr5qeTOraogC8Mcfq6A==
+  dependencies:
+    "@ethersproject/bytes" "^5.7.0"
+    "@ethersproject/signing-key" "^5.7.0"
+    elliptic "^6.5.4"
+    process "^0.11.10"
+    secp256k1 "^4.0.3"
+    tweetnacl "^1.0.3"
+    tweetnacl-util "^0.15.1"
+
 "@rainbow-me/rainbowkit@^1.0.2":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@rainbow-me/rainbowkit/-/rainbowkit-1.1.2.tgz#733a2c864dd7dd3625ed54440a1ccb18b0636c72"
@@ -3498,6 +3541,14 @@ axe-core@^4.6.2:
   version "4.8.2"
   resolved "https://registry.yarnpkg.com/axe-core/-/axe-core-4.8.2.tgz#2f6f3cde40935825cf4465e3c1c9e77b240ff6ae"
   integrity sha512-/dlp0fxyM3R8YW7MFzaHWXrf4zzbr0vaYb23VBFCl83R7nWNPg/yaQw2Dc8jzCMmDVLhSdzH8MjrsuIUuvX+6g==
+
+axios@0.27.2:
+  version "0.27.2"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.27.2.tgz#207658cc8621606e586c85db4b41a750e756d972"
+  integrity sha512-t+yRIyySRTp/wua5xEr+z1q60QmLq8ABsS5O9Me1AsE5dfKqgnCFzwiCZZ/cGNd1lq4/7akDWMxdhVlucjmnOQ==
+  dependencies:
+    follow-redirects "^1.14.9"
+    form-data "^4.0.0"
 
 axios@^0.21.1:
   version "0.21.4"
@@ -5842,7 +5893,7 @@ fmix@^0.1.0:
   dependencies:
     imul "^1.0.0"
 
-follow-redirects@^1.12.1, follow-redirects@^1.14.0, follow-redirects@^1.15.0:
+follow-redirects@^1.12.1, follow-redirects@^1.14.0, follow-redirects@^1.14.9, follow-redirects@^1.15.0:
   version "1.15.3"
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.3.tgz#fe2f3ef2690afce7e82ed0b44db08165b207123a"
   integrity sha512-1VzOtuEM8pC9SFU1E+8KfTjZyMztRsgEfwQl44z8A25uy13jSzTj6dyK2Df52iV0vgHCfBwLhDWevLn95w5v6Q==
@@ -8574,6 +8625,11 @@ pbkdf2@^3.0.17, pbkdf2@^3.0.3, pbkdf2@^3.0.9:
     safe-buffer "^5.0.1"
     sha.js "^2.4.8"
 
+penpal@^6.2.2:
+  version "6.2.2"
+  resolved "https://registry.yarnpkg.com/penpal/-/penpal-6.2.2.tgz#20a0a0592881a959e8c87116d854f9528b1aa601"
+  integrity sha512-RQD7hTx14/LY7QoS3tQYO3/fzVtwvZI+JeS5udgsu7FPaEDjlvfK9HBcme9/ipzSPKnrxSgacI9PI7154W62YQ==
+
 performance-now@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
@@ -9753,7 +9809,7 @@ scrypt-js@3.0.1, scrypt-js@^3.0.0, scrypt-js@^3.0.1:
   resolved "https://registry.yarnpkg.com/scrypt-js/-/scrypt-js-3.0.1.tgz#d314a57c2aef69d1ad98a138a21fe9eafa9ee312"
   integrity sha512-cdwTTnqPu0Hyvf5in5asVdZocVDTNRmR7XEcJuIzMjJeSHybHl7vpB66AzwTaIg6CLSbtjcxc8fqcySfnTkccA==
 
-secp256k1@4.0.3, secp256k1@^4.0.1:
+secp256k1@4.0.3, secp256k1@^4.0.1, secp256k1@^4.0.3:
   version "4.0.3"
   resolved "https://registry.yarnpkg.com/secp256k1/-/secp256k1-4.0.3.tgz#c4559ecd1b8d3c1827ed2d1b94190d69ce267303"
   integrity sha512-NLZVf+ROMxwtEj3Xa562qgv2BK5e2WNmXPiOdVIPLgs6lyTzMvBq0aWTYMI5XCP9jZMVKOcqZLw/Wc4vDkuxhA==
@@ -11054,6 +11110,11 @@ uuid@^8.3.2:
   version "8.3.2"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
   integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
+
+uuid@^9.0.1:
+  version "9.0.1"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-9.0.1.tgz#e188d4c8853cc722220392c424cd637f32293f30"
+  integrity sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==
 
 v8-compile-cache-lib@^3.0.1:
   version "3.0.1"

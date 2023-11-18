@@ -68,9 +68,11 @@ export const getPrice = async (params: { inToken: string, outToken: string, inpu
     route.estimatedGasUsedUSD.toFixed(6),
   ]
 }
-export const getTokenBalance = async (tokenAddress, account, provider)=> {
+export const getTokenBalance = async (tokenAddress, account, provider, parse = false)=> {
   const contract = new ethers.Contract(tokenAddress, ERC20ABI, provider);
-  return await contract.balanceOf(account)
+
+  const [balance, decimals] = await Promise.all([contract.balanceOf(account), contract.decimals()]);
+  return parse ? ethers.utils.formatUnits(balance, decimals) : balance;
 }
 
 export const runSwap = async (transaction, signer, tokenAddress) => {
