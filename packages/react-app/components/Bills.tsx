@@ -107,8 +107,8 @@ const PayList = ({ loadingPays = false, data = [], error = null }) => {
                                         1
                                     )}`}</b>
                                     <Space size={"small"}>
-                                        {item?.tags.map((tag) => (
-                                            <Tag>#{tag}</Tag>
+                                        {item?.tags.map((tag, idx) => (
+                                            <Tag key={idx}>#{tag}</Tag>
                                         ))}
                                     </Space>
                                 </Space>
@@ -219,7 +219,7 @@ const BillDetails = ({ show = false, data, onClose = () => {} }) => {
             {
                 key: 10,
                 label: "Tags",
-                children: tags.map((tag) => <Tag>{tag}</Tag>),
+                children: tags.map((tag, idx) => <Tag key={idx}>{tag}</Tag>),
             },
             { key: 11, label: "Memo", children: memo },
         ];
