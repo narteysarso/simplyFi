@@ -49,8 +49,8 @@ const BillList = ({ bills = [], loadingBills = false, error = null }) => {
                                         1
                                     )}`}</b>
                                     <Space size={"small"}>
-                                        {item?.tags.map((tag) => (
-                                            <Tag>#{tag}</Tag>
+                                        {item?.tags.map((tag, idx) => (
+                                            <Tag key={idx}>#{tag}</Tag>
                                         ))}
                                     </Space>
                                 </Space>
