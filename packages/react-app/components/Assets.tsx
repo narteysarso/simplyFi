@@ -5,7 +5,7 @@ import { TatumSDK, Network, Celo } from "@tatumio/tatum";
 import { DEFAULT_ASSETS, DEFAULT_ASSETS_DATA } from "@/constants/tokens";
 import { TokenIcons } from "@/constants/invoicedata";
 
-function TokenAssets({ data, rates = [], isLoading = true }) {
+function TokenAssets({ data =[], rates = [], isLoading = true }) {
     return (
         <List
             itemLayout="horizontal"
