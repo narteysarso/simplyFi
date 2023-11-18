@@ -20,14 +20,7 @@
         "hardhat:watch": "yarn workspace @simplesend/hardhat watch",
         "hardhat:fork-mainnet": "yarn workspace @simplesend/hardhat fork-mainnet"
     },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/celo-org/celo-composer.git"
-    },
-    "bugs": {
-        "url": "https://github.com/celo-org/celo-composer/issues"
-    },
-    "homepage": "https://github.com/celo-org/celo-composer/blob/main/README.md",
+    
     "workspaces": [
         "packages/*"
     ],
