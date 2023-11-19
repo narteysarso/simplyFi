@@ -143,6 +143,8 @@ export default function Swap() {
         getCurrentBalances().then(([balance1, balance2]) => {
             setTokenBalances([balance1.toString(), balance2.toString()]);
         });
+
+        if(form.getFieldValue("input") > 0)
         getQoute(selectedTokens[0], selectedTokens[1], form.getFieldValue("input"))
     }, [selectedTokens]);
 
