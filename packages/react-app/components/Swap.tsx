@@ -111,7 +111,7 @@ export default function Swap() {
         amountIn: number
     ) => {
         try {
-            messsage.info("starting")
+            message.info("starting")
             alert("start")
             setLoadingQoute(true);
             const [transaction, quoteAmountOut, ratio, networkCost] =
@@ -134,6 +134,7 @@ export default function Swap() {
             setNetworkCost(networkCost);
             setTxnData(transaction);
         } catch (error) {
+            
         } finally {
             setLoadingQoute(false);
         }
