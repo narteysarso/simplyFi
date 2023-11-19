@@ -133,8 +133,8 @@ export default function Swap() {
 
     const getCurrentBalances = async () => {
         return await Promise.all([
-            getTokenBalance(TOKENS[selectedTokens[0]], address, provider),
-            getTokenBalance(TOKENS[selectedTokens[1]], address, provider),
+            getTokenBalance(TOKENS[selectedTokens[0]], address, provider, true),
+            getTokenBalance(TOKENS[selectedTokens[1]], address, provider, true),
         ]);
     };
 
@@ -146,7 +146,7 @@ export default function Swap() {
 
         if(form.getFieldValue("input") > 0)
         getQoute(selectedTokens[0], selectedTokens[1], form.getFieldValue("input"))
-    }, [selectedTokens]);
+    }, [selectedTokens, address]);
 
 
     return (
