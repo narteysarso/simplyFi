@@ -5,7 +5,7 @@ import { TatumSDK, Network, Celo } from "@tatumio/tatum";
 import { DEFAULT_ASSETS, DEFAULT_ASSETS_DATA } from "@/constants/tokens";
 import { TokenIcons } from "@/constants/invoicedata";
 
-function TokenAssets({ data =[], rates = [], isLoading = true }) {
+function TokenAssets({ data = [], rates = [], isLoading = true }) {
     return (
         <List
             itemLayout="horizontal"
@@ -21,9 +21,11 @@ function TokenAssets({ data =[], rates = [], isLoading = true }) {
                                     {item.asset}
                                 </Typography.Title>
                                 <Typography.Text>
-                                    { rates[index]?.value ? parseFloat(rates[index]?.value)?.toFixed(
-                                        2
-                                    ) : 0}{" "}
+                                    {rates[index]?.value
+                                        ? parseFloat(
+                                              rates[index]?.value
+                                          )?.toFixed(2)
+                                        : 0}{" "}
                                     {rates[index]?.basePair}
                                 </Typography.Text>
                             </Space>
@@ -70,6 +72,7 @@ function NFTAssets({ data, isLoading = false }) {
 const Assets: React.FC = () => {
     const { address, isConnected } = useAccount();
     const [loadingAssets, setLoadingAssets] = useState(false);
+    const [loadingCollectibles, setLoadingCollectibles] = useState(false);
     const [collectibles, setCollectibles] = useState([]);
     const [funds, setFunds] = useState([...DEFAULT_ASSETS_DATA]);
     const [rates, setRates] = useState([]);
@@ -100,76 +103,80 @@ const Assets: React.FC = () => {
         },
     ];
 
+    // useEffect(() => {
+    //     if (!isConnected || !address) return;
+    //     const getBalance = setTimeout(async () => {
+    //         try {
+    //             setLoadingAssets(true);
+
+    //             const tatum = await TatumSDK.init<Celo>({
+    //                 network: Network.CELO,
+    //                 apiKey: process.env.NEXT_PUBLIC_TATUM_API_KEY
+    //             });
+
+    //             // console.log(tatum);
+
+    //             const balances = await tatum.address.getBalance({
+    //                 addresses: [address],
+    //             });
+
+    //             // console.log(balances);
+
+    //             if (balances?.data?.length < 1) return;
+    //             const tempFunds = Object.assign(funds);
+    //             const [fungible, nft] = balances?.data?.reduce(
+    //                 (acc, val) => {
+    //                     if (val.type === "nft")
+    //                         return [acc[0], [val, ...acc[1]]];
+    //                     const idx = DEFAULT_ASSETS.indexOf(val.asset);
+    //                     if (idx > -1) {
+    //                         tempFunds[idx] = val;
+    //                         return acc;
+    //                     }
+    //                     return [[val, ...acc[0]], acc[1]];
+    //                 },
+    //                 [[], []]
+    //             );
+
+    //             setCollectibles(nft);
+    //             setFunds(
+    //                 [...tempFunds, ...fungible].sort(
+    //                     (a, b) => b.balance - a.balance
+    //                 )
+    //             );
+    //         } catch (error) {
+    //             message.error(error.message)
+    //             console.log(error);
+    //         } finally {
+    //             setLoadingAssets(false);
+    //         }
+    //     }, 5000);
+
+    //     return () => clearTimeout(getBalance);
+    // }, [address, isConnected, funds]);
+
     useEffect(() => {
-        if (!isConnected || !address) return;
         const getBalance = setTimeout(async () => {
             try {
-                setLoadingAssets(true);
-
                 const tatum = await TatumSDK.init<Celo>({
                     network: Network.CELO,
-                    apiKey: process.env.NEXT_PUBLIC_TATUM_API_KEY
                 });
 
-                // console.log(tatum);
+                const batch = [...funds].map((tk, idx) => ({
+                    currency: tk.asset.toLocaleUpperCase(),
+                    basePair: basePair,
+                    batchId: idx,
+                }));
 
-                const balances = await tatum.address.getBalance({
-                    addresses: [address],
-                });
+                // console.log(batch)
 
-                // console.log(balances);
+                const rates = await tatum.rates.getCurrentRateBatch(batch);
 
-                if (balances?.data?.length < 1) return;
-                const tempFunds = Object.assign(funds);
-                const [fungible, nft] = balances?.data?.reduce(
-                    (acc, val) => {
-                        if (val.type === "nft")
-                            return [acc[0], [val, ...acc[1]]];
-                        const idx = DEFAULT_ASSETS.indexOf(val.asset);
-                        if (idx > -1) {
-                            tempFunds[idx] = val;
-                            return acc;
-                        }
-                        return [[val, ...acc[0]], acc[1]];
-                    },
-                    [[], []]
-                );
-
-                setCollectibles(nft);
-                setFunds(
-                    [...tempFunds, ...fungible].sort(
-                        (a, b) => b.balance - a.balance
-                    )
-                );
+                // console.log(rates);
+                setRates(rates?.data || []);
             } catch (error) {
-                message.error(error.message)
                 console.log(error);
-            } finally {
-                setLoadingAssets(false);
             }
-        }, 5000);
-
-        return () => clearTimeout(getBalance);
-    }, [address, isConnected, funds]);
-
-    useEffect(() => {
-        const getBalance = setTimeout(async () => {
-            const tatum = await TatumSDK.init<Celo>({
-                network: Network.CELO,
-            });
-
-            const batch = [...funds].map((tk, idx) => ({
-                currency: tk.asset.toLocaleUpperCase(),
-                basePair: basePair,
-                batchId: idx,
-            }));
-
-            // console.log(batch)
-
-            const rates = await tatum.rates.getCurrentRateBatch(batch);
-
-            // console.log(rates);
-            setRates(rates?.data || []);
         }, 5000);
         return () => clearTimeout(getBalance);
     }, [collectibles, funds]);
