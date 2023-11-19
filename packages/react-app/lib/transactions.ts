@@ -13,20 +13,33 @@ export const createBill = async ({
     memo,
     category,
     payToken,
-    paymentDue,
+    paymentDue = Math.floor(Date.now()/1000),
     signer
 }) => {
-
-    try {
         // TODO: 
         // create txn
-        const splitContract = getSplitterContract(signer)
+        const splitContract = getSplitterContract(signer);
+        
+        const tokenContract = getERC20Contract(tokenAddress, signer);
+        const decimals = 18 //await tokenContract.decimals();
+
+        const _amountDue = ethers.utils.parseUnits(amountDue.toString(), decimals ).toString();
+
+        const _payers = payers.reduce((prev, payer, idx) => {
+            const amount = ethers.utils.parseUnits(payer.amount.toString(), decimals).toString();
+            return [[...prev[0],{...payer, amount }], [...prev[1],[payer.account, amount]]];
+        }, [[],[]])
+
+        const _items = items.map(item => ({...item, amount: ethers.utils.parseUnits(item.amount, decimals).toString()}))
 
         // send txn
-        const txn = await splitContract.createBill(amount_due, tokenAddress, paymentDue, recipient, creator, payers);
+        const txn = await splitContract.createBill(_amountDue, tokenAddress, paymentDue.toString(), recipient, creator, _payers[1]);
 
+        const txnd = await txn.wait();
+
+        const billId = ((await splitContract._billIndex()) - 3).toString();
         // store on db
-        const txnHash = uuidv4();
+        const txnHash = txnd.transactionHash;
         const result = await fetch("/api/store", {
             method: "POST",
             headers: {
@@ -34,17 +47,19 @@ export const createBill = async ({
             },
             body: JSON.stringify({
                 tokenAddress,
-                amountDue,
+                billId,
+                amountDue: _amountDue,
                 recipient,
                 creator,
-                items,
+                items: _items,
                 tags,
-                payers,
+                payers: _payers[0],
                 memo,
                 category,
                 payToken,
                 txnHash,
                 paymentDue,
+                tokenDecimal: decimals
             })
         });
 
@@ -55,11 +70,6 @@ export const createBill = async ({
         const res = await result.json();
 
         return res;
-
-    } catch (error) {
-
-        console.log(error);
-    }
 
 }
 
@@ -116,11 +126,11 @@ export const getBills = async ({ creatorAddress }) => {
 export const getBillsWithTxnhash = async({txnHash}) =>{
     const response = await fetch(`/api/store?billHash=${txnHash}`);
 
-    if (response.status != 200) {
+    if (!response.ok) {
         throw Error("request failed");
     }
 
     const res = await response.json();
 
-    return res;
+    return (res);
 }

@@ -4,8 +4,9 @@ import { Layout, Space, Tag } from "antd";
 import Image from "next/image";
 import { useAccount, useBalance, useConnect, } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
-import { celoAlfajores, celo} from "viem/chains";
+import { celoAlfajores, celo, polygonMumbai} from "viem/chains";
 import ActionButtons from "./ActionButtons";
+import { TOKENS } from "@/constants/tokens";
 
 const { Content } = Layout;
 // import Footer from "./Footer";
@@ -20,11 +21,13 @@ const MainLayout: FC<Props> = ({ children }) => {
     const { address, isConnected,  } = useAccount();
     const { connect} = useConnect({
         connector: new InjectedConnector(),
-        chainId: celo.id
+        // chainId: celo.id
+        chainId: polygonMumbai.id
     });
+
     const {data: balance, isLoading: balanceLoading} = useBalance({
       address,
-      token: "0x765DE816845861e75A25fCA122bb6898B8B1282a"
+      token: TOKENS["CELO"]
     })
 
     useEffect(() => {

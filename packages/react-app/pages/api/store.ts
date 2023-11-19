@@ -57,9 +57,11 @@ async function createBill(reqData: any): Promise<ResponseObject> {
         category,
         txnHash,
         paymentDue,
+        billId,
+        tokenDecimal
     } = reqData;
 
-    const resp = await db.createBill({ items, payers, tokenAddress, amountDue, memo, category, creator, tags, recipient, txnHash, paymentDue });
+    const resp = await db.createBill({ items, payers, tokenAddress, amountDue, memo, category, creator, tags, recipient, txnHash, paymentDue, billId, tokenDecimal });
 
     return Object.freeze({
         status: 200,
@@ -70,7 +72,7 @@ async function createBill(reqData: any): Promise<ResponseObject> {
 async function updatePayer(payerId: string, updateInfo: Object): Promise<ResponseObject>{
     const payer = await db.findById({collection: "Payer", id: payerId});
     const info = {...payer.data, ...updateInfo};
-    console.log(info);
+    
     const resp = await db.updatePayer({...info});
 
     return Object.freeze({
@@ -136,7 +138,6 @@ export default async function handler(req: NextApiRequest,
                 res.status(result.status).json(result.data);
             case "PUT": 
                 const {payerId, ...restInfo} = req.body;
-                // console.log(req.body);
                 const updateResult = await updatePayer(payerId, restInfo);
                 res.status(updateResult.status).json(updateResult.data);
             default:

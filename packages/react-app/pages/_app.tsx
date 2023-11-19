@@ -1,4 +1,4 @@
-import { Alfajores, Celo } from "@celo/rainbowkit-celo/chains";
+import { Alfajores, Celo, } from "@celo/rainbowkit-celo/chains";
 import celoGroups from "@celo/rainbowkit-celo/lists";
 import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import "@rainbow-me/rainbowkit/styles.css";
@@ -7,11 +7,12 @@ import { WagmiConfig, configureChains, createConfig } from "wagmi";
 import { publicProvider } from "wagmi/providers/public";
 import Layout from "../components/Layout";
 import "../styles/globals.css";
+import { polygonMumbai } from "viem/chains";
 
 const projectId = process.env.NEXT_PUBLIC_WC_PROJECT_ID as string; // get one at https://cloud.walletconnect.com/app
 
 const { chains, publicClient } = configureChains(
-  [Celo, Alfajores],
+  [Celo, Alfajores, polygonMumbai],
   [publicProvider()]
 );
 

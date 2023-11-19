@@ -21,6 +21,7 @@ import { FormModal } from "./Invoice";
 import { DEFAULT_ASSETS, TOKENS, TokenIcons } from "@/constants/tokens";
 import { getPrice, getTokenBalance } from "@/lib/router";
 import { useEthersProvider } from "@/lib/ethers";
+import { ethers } from "ethers";
 
 const { Option } = Select;
 
@@ -59,10 +60,10 @@ const BillList = ({ bills = [], loadingBills = false, error = null }) => {
                                 <Space>
                                     <>
                                         Amount Due:
-                                        {item?.amountDue}
+                                        {item?.tokenDecimal ? ethers.utils.formatUnits(item?.amountDue, item.tokenDecimal).toString() : item?.amountDue}
                                     </>
                                     <Divider type="vertical" />
-                                    <b>Amount Paid: {item?.amountPaid || 0}</b>
+                                    <b>Amount Paid: {item?.amountPaid ? ethers.utils.formatUnits(item?.amountPaid, item.tokenDecimal).toString() : item?.amountPaid}</b>
                                 </Space>
                             }
                         />
@@ -116,11 +117,11 @@ const PayList = ({ loadingPays = false, data = [], error = null }) => {
                             description={
                                 <Space>
                                     <>
-                                        Amount Due:
-                                        {item?.amount}
+                                    Amount Due:
+                                        {item?.tokenDecimal ? ethers.utils.formatUnits(item?.amountDue, item.tokenDecimal).toString() : item?.amountDue}
                                     </>
                                     <Divider type="vertical" />
-                                    <b>Amount Paid: {item?.amountPaid || 0}</b>
+                                    <b>Amount Paid: {item?.amountPaid ? ethers.utils.formatUnits(item?.amountPaid, item.tokenDecimal).toString() : item?.amountPaid}</b>
                                 </Space>
                             }
                         />
@@ -157,6 +158,7 @@ const BillDetails = ({ show = false, data, onClose = () => {} }) => {
             creator,
             txnHash,
             tokenAddress,
+            tokenDecimal,
             tags,
             memo,
         } = data;
@@ -171,8 +173,8 @@ const BillDetails = ({ show = false, data, onClose = () => {} }) => {
                     </Space>
                 ),
             },
-            { key: 1, label: "Amount Due", children: amountDue },
-            { key: 2, label: "Amount Paid", children: amountPaid },
+            { key: 1, label: "Amount Due", children: tokenDecimal ? ethers.utils.formatUnits(amountDue, tokenDecimal).toString() : amountDue },
+            { key: 2, label: "Amount Paid", children: tokenDecimal ? ethers.utils.formatUnits(amountPaid, tokenDecimal).toString() : amountPaid },
             { key: 3, label: "Category", children: category },
             {
                 key: 4,
@@ -219,7 +221,7 @@ const BillDetails = ({ show = false, data, onClose = () => {} }) => {
             {
                 key: 10,
                 label: "Tags",
-                children: tags.map((tag, idx) => <Tag key={idx}>{tag}</Tag>),
+                children: <Space size={"small"} wrap>{tags.map((tag, idx) => <Tag key={idx}>{tag}</Tag>)}</Space>,
             },
             { key: 11, label: "Memo", children: memo },
         ];
@@ -303,6 +305,7 @@ const PayBill = ({ show = false, data = {}, onClose = () => {} }) => {
         creator,
         txnHash,
         tokenAddress,
+        tokenDecimal,
         tags,
         memo,
     } = useMemo(() => data || {}, [data]);
@@ -388,6 +391,7 @@ const PayBill = ({ show = false, data = {}, onClose = () => {} }) => {
             open={show}
             confirmLoading={loadingQoute}
             okText={"Approve Payment"}
+            okType="default"
             onCancel={() => onClose()}
             onOk={() => {}}
         >
@@ -468,7 +472,7 @@ const PayBill = ({ show = false, data = {}, onClose = () => {} }) => {
                 </Form.Item>
                 <Space size={"large"} align="baseline">
                    
-                       <b> Amount Due: {amountDue} {selectedTokens[1]}</b>
+                       <b> Amount Due: {tokenDecimal ? ethers.utils.formatUnits(amountDue, tokenDecimal).toString() : amountDue} {selectedTokens[1]}</b>
                     
                     <Typography.Paragraph>
                         1 {selectedTokens[1]} = {ratio} {selectedTokens[0]}
@@ -512,15 +516,16 @@ const Bills: React.FC = () => {
                 setLoadingPays(true);
                 if (!address) return;
                 const payers = await getPays({ debtorAddress: address });
+                // console.log(payers);
                 // const bills = await Promise.all(payers.map(payer => getBillsWithTxnhash({txnHash: payer?.txnHash})));
                 const payerBills = await payers.reduce(
                     async (prev, payer, idx: number) => {
-                        const [bill] = await getBillsWithTxnhash({
-                            txnHash: payer?.txnHash,
-                        });
+                        
+                        const [bill] = await getBillsWithTxnhash({txnHash: payer?.txnHash});
 
                         if (!bill) return prev;
-                        return [...prev, { ...bill, ...payer }];
+
+                        return [...await prev, { ...bill, ...payer }];
                     },
                     []
                 );

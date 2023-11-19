@@ -24,6 +24,8 @@ export const polybase = () => {
         amountDue,
         payers,
         memo,
+        billId,
+        tokenDecimal,
         paymentDue = Date.now(),
         createdAt = Date.now()
     }) => {
@@ -57,7 +59,8 @@ export const polybase = () => {
                 tokenAddress,
                 txnHash,
                 createdAt,
-                paymentDue
+                paymentDue,
+                tokenDecimal
             ])
 
             return ({payerIds: [...prev.payerIds, payerId], payerData: [...prev.payerData, payerData]});
@@ -81,7 +84,9 @@ export const polybase = () => {
             tags,
             itemIds.map((itemId) => db.collection("Item").record(itemId)),
             createdAt,
-            paymentDue
+            paymentDue,
+            billId,
+            tokenDecimal
         ]);
 
         return billRecord;

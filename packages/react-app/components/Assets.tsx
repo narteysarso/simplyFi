@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Avatar, List, Space, Tabs, Typography } from "antd";
+import { Avatar, List, Space, Tabs, Typography, message } from "antd";
 import { useAccount } from "wagmi";
 import { TatumSDK, Network, Celo } from "@tatumio/tatum";
 import { DEFAULT_ASSETS, DEFAULT_ASSETS_DATA } from "@/constants/tokens";
@@ -111,13 +111,13 @@ const Assets: React.FC = () => {
                     apiKey: process.env.NEXT_PUBLIC_TATUM_API_KEY
                 });
 
-                console.log(tatum);
+                // console.log(tatum);
 
                 const balances = await tatum.address.getBalance({
                     addresses: [address],
                 });
 
-                console.log(balances);
+                // console.log(balances);
 
                 if (balances?.data?.length < 1) return;
                 const tempFunds = Object.assign(funds);
@@ -142,6 +142,7 @@ const Assets: React.FC = () => {
                     )
                 );
             } catch (error) {
+                message.error(error.message)
                 console.log(error);
             } finally {
                 setLoadingAssets(false);

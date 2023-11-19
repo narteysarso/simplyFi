@@ -9,6 +9,7 @@ import {
     Modal,
     Typography,
     Radio,
+    message,
 } from "antd";
 import { DEFAULT_ASSETS, TOKENS, TokenIcons } from "@/constants/tokens";
 import { createBill } from "../lib/transactions";
@@ -95,25 +96,23 @@ const SplitForm = ({ form, onfinish = (j) => {} }) => {
                     form.setFieldValue("amountDue", totalAmount / 3);
                 }
                 // console.log(fieldData, allFieldData);
-                // setFields(allFieldData);
+                setFields(allFieldData);
             }}
-            onFinish={(values) => {
+            onFinish={async (values) => {
                 try {
                     setLoading(true);
-                    createBill({
+
+                    const data = await createBill({
                         ...values,
                         tokenAddress: TOKENS[values?.payToken || "CELO"],
                         creator: address,
+                        signer
                     })
-                        .then((data) => {
-                            onfinish(data);
-                        })
-                        .error((err: Error) => {
-                            console.log(err);
-                            throw err
-                        });
+                    onfinish(data);
+                    message.success("Bill Created");
                 } catch (error) {
-                    
+                    message.warning("Bill failed")
+                    // console.log(error);
                 }finally{
                     setLoading(false);
                 }
@@ -332,7 +331,7 @@ const SplitForm = ({ form, onfinish = (j) => {} }) => {
             <Form.Item>
                 <Space>
                     <Button htmlType="reset">Cancel</Button>
-                    <Button htmlType="submit" type="primary" loading={loading}>
+                    <Button htmlType="submit" loading={loading}>
                         Create Bill
                     </Button>
                 </Space>
@@ -345,7 +344,7 @@ export const FormModal = () => {
     const [form] = Form.useForm();
     const [open, setOpen] = useState(false);
     const onCreate = (values) => {
-        console.log("Received values of form: ", values);
+        
         setOpen(false);
     };
     const onCancel = () => {
@@ -366,7 +365,7 @@ export const FormModal = () => {
                             onCreate(values);
                         })
                         .catch((info) => {
-                            console.log("Validate Failed:", info);
+                            message.error("Validate Failed:", info);
                         });
                 }}
             >
