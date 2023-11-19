@@ -167,12 +167,12 @@ const SplitForm = ({ form, onfinish = (j) => {} }) => {
             <Divider>
                 <Typography.Title level={5}>Cost Descriptions</Typography.Title>
             </Divider>
-            <Form.List name="items">
+            <Form.List name="items" key={1}>
                 {(fields, { add, remove }) => (
                     <>
-                        {fields.map(({ key, name, ...restField }) => (
-                            <>
-                                <Space key={key} align="baseline" wrap>
+                        {fields.map(({ key, name, ...restField }, idx) => (
+                            <div key={key}>
+                                <Space key={idx} align="baseline" wrap>
                                     <Form.Item
                                         {...restField}
                                         name={[name, "description"]}
@@ -236,7 +236,7 @@ const SplitForm = ({ form, onfinish = (j) => {} }) => {
                                 <Divider
                                     style={{ padding: 0, marginTop: 0.5 }}
                                 />
-                            </>
+                            </div>
                         ))}
                         <Form.Item>
                             <Button
@@ -275,11 +275,11 @@ const SplitForm = ({ form, onfinish = (j) => {} }) => {
             <Divider>
                 <Typography.Title level={5}>Split Details</Typography.Title>
             </Divider>
-            <Form.List name="payers">
+            <Form.List name="payers" key={2}>
                 {(fields, { add, remove }) => (
                     <>
-                        {fields.map(({ key, name, ...restField }) => (
-                            <Space key={key} align="baseline">
+                        {fields.map(({ key, name, ...restField }, idx) => (
+                            <Space key={idx} align="baseline">
                                 <Form.Item
                                     {...restField}
                                     name={[name, "account"]}
