@@ -101,10 +101,10 @@ const Assets: React.FC = () => {
     ];
 
     useEffect(() => {
+        if (!isConnected || !address) return;
         const getBalance = setTimeout(async () => {
             try {
                 setLoadingAssets(true);
-                if (!isConnected || !address) return;
 
                 const tatum = await TatumSDK.init<Celo>({
                     network: Network.CELO,

@@ -167,7 +167,7 @@ export default function Swap() {
                         size="large"
                         addonBefore={
                             <FromSelector
-                                allTokens={tokens}
+                                allTokens={tokens.slice(0,5)}
                                 defaultValue={selectedTokens[0]}
                                 selectedToken={selectedTokens}
                                 onChange={onFromTokenChange}
@@ -192,7 +192,7 @@ export default function Swap() {
                         value={qoute}
                         addonBefore={
                             <ToSelector
-                                allTokens={tokens}
+                                allTokens={tokens.slice(0,5)}
                                 defaultValue={selectedTokens[1]}
                                 selectedToken={selectedTokens}
                                 onChange={onToTokenChange}
