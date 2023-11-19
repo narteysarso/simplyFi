@@ -104,6 +104,35 @@ const Assets: React.FC = () => {
     ];
 
     useEffect(() => {
+        const getBalance = setTimeout(async () => {
+            try {
+                setLoadingBalances(true);
+                const tatum = await TatumSDK.init<Celo>({
+                    network: Network.CELO,
+                });
+
+                const batch = [...funds].map((tk, idx) => ({
+                    currency: tk.asset.toLocaleUpperCase(),
+                    basePair: basePair,
+                    batchId: idx,
+                }));
+
+                // console.log(batch)
+
+                const rates = await tatum.rates.getCurrentRateBatch(batch);
+
+                // console.log(rates);
+                setRates(rates?.data || []);
+            } catch (error) {
+                console.log(error);
+            } finally {
+                setLoadingBalances(false);
+            }
+        }, 0);
+        return () => clearTimeout(getBalance);
+    }, [collectibles, funds]);
+
+    useEffect(() => {
         if (!isConnected || !address) return;
         const getBalance = setTimeout(async () => {
             try {
@@ -111,7 +140,7 @@ const Assets: React.FC = () => {
 
                 const tatum = await TatumSDK.init<Celo>({
                     network: Network.CELO,
-                    apiKey: process.env.NEXT_PUBLIC_TATUM_API_KEY
+                    apiKey: process.env.NEXT_PUBLIC_TATUM_API_KEY,
                 });
 
                 // console.log(tatum);
@@ -145,7 +174,7 @@ const Assets: React.FC = () => {
                     )
                 );
             } catch (error) {
-                message.error(error.message)
+                message.error(error.message);
                 console.log(error);
             } finally {
                 setLoadingAssets(false);
@@ -154,35 +183,6 @@ const Assets: React.FC = () => {
 
         return () => clearTimeout(getBalance);
     }, [address, isConnected, funds]);
-
-    useEffect(() => {
-        const getBalance = setTimeout(async () => {
-            try {
-                setLoadingBalances(true)
-                const tatum = await TatumSDK.init<Celo>({
-                    network: Network.CELO,
-                });
-
-                const batch = [...funds].map((tk, idx) => ({
-                    currency: tk.asset.toLocaleUpperCase(),
-                    basePair: basePair,
-                    batchId: idx,
-                }));
-
-                // console.log(batch)
-
-                const rates = await tatum.rates.getCurrentRateBatch(batch);
-
-                // console.log(rates);
-                setRates(rates?.data || []);
-            } catch (error) {
-                console.log(error);
-            }finally{
-                setLoadingBalances(false)
-            }
-        }, 5000);
-        return () => clearTimeout(getBalance);
-    }, [collectibles, funds]);
 
     return <Tabs defaultActiveKey="1" items={items} />;
 };
