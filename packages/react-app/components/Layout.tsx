@@ -21,8 +21,7 @@ const MainLayout: FC<Props> = ({ children }) => {
     const { address, isConnected,  } = useAccount();
     const { connect} = useConnect({
         connector: new InjectedConnector(),
-        // chainId: celo.id
-        chainId: polygonMumbai.id
+        chainId: celo.id
     });
 
     const {data: balance, isLoading: balanceLoading} = useBalance({
