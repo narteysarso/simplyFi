@@ -22,6 +22,7 @@ import { LoadingOutlined, SwapOutlined } from "@ant-design/icons";
 import { useAccount } from "wagmi";
 import { useEthersProvider, useEthersSigner } from "@/lib/ethers";
 import { getPrice, getTokenBalance } from "@/lib/router";
+import { swap } from "@/lib/transactions";
 
 const { Option } = Select;
 
@@ -93,6 +94,7 @@ export default function Swap() {
     const [networkCost, setNetworkCost] = useState(0);
     const { isConnected, address } = useAccount();
     const provider = useEthersProvider();
+    const signer = useEthersSigner();
 
     const onFromTokenChange = (newtoken) => {
         setSelectedToken((prev) => [newtoken, prev.at(1)]);
@@ -119,6 +121,8 @@ export default function Swap() {
                     walletAddress: address,
                     provider,
                 });
+
+            alert("done");
 
             setQoute(quoteAmountOut);
             form.setFieldValue("output", quoteAmountOut);
@@ -154,7 +158,10 @@ export default function Swap() {
             <Form
                 form={form}
                 name="swap-tokens-form"
-                onFinish={console.log}
+                onFinish={async (values) => {
+                    
+                    await swap({txnData, signer,  amount: values?.input || 0, fromToken: TOKENS[selectedTokens[0]]})
+                }}
                 onValuesChange={async (val) =>
                     await getQoute(
                         selectedTokens[0],

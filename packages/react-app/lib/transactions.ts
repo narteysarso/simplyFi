@@ -134,3 +134,17 @@ export const getBillsWithTxnhash = async({txnHash}) =>{
 
     return (res);
 }
+
+export const swap = async(params = {fromToken: string, amount: string,  signer: ethers.Signer, txnData: Object}) => {
+    const {amount, fromToken, signer, txnData} = params;
+    const tokenContract = getERC20Contract(fromToken, signer);
+    const decimals = await tokenContract.decimals();
+
+    const approve = await tokenContract.approve(txnData.to, ethers.utils.parseUnits(amount, decimals));
+    
+    await approve.wait();
+
+    const txn = await signer.sendTransaction(txnData)
+
+    const result = await txn.wait();
+}
