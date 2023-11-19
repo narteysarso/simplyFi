@@ -116,7 +116,7 @@ export const polybase = () => {
         .get();
         
         return data.map(({data}) => data);
-    }
+    } 
 
     const updatePayer = async ({ collection = "Payer", id, ...updateInfo }) => {
         const {
@@ -124,6 +124,7 @@ export const polybase = () => {
             account,
             amount,
             amountPaid,
+            tokenAddress,
             status,
             createdAt
         } = updateInfo;
@@ -131,11 +132,12 @@ export const polybase = () => {
         const recordData = await db.collection(collection)
             .record(id)
             .call("update", [
-                txnHash,
                 account,
                 amount,
                 amountPaid,
+                tokenAddress,
                 status,
+                txnHash,
                 createdAt
             ]);
 

@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
-import { getSplitterContract } from "../lib/helpers";
+import { getERC20Contract, getSplitterContract } from "../lib/helpers";
+import { ethers } from "ethers";
 
 export const createBill = async ({
     tokenAddress,
@@ -19,10 +20,10 @@ export const createBill = async ({
     try {
         // TODO: 
         // create txn
-        // const splitContract = getSplitterContract(signer)
+        const splitContract = getSplitterContract(signer)
 
         // send txn
-        // const txn = await splitContract.createBill(amount_due, tokenAddress, paymentDue, recipient, creator, payers);
+        const txn = await splitContract.createBill(amount_due, tokenAddress, paymentDue, recipient, creator, payers);
 
         // store on db
         const txnHash = uuidv4();
@@ -78,12 +79,24 @@ export const getPays = async ({ debtorAddress }) => {
 
 }
 
-export const payBill = ({ billId, amount, tokenAddress, signer }) => {
+export const payBill = async (params: { billId: number , amount: string, payTokenAddress: string, payerAddress: string, signer: ethers.Signer }) => {
+    const {billId, amount, payTokenAddress, payerAddress, signer} = params;
     // TODO:
     // approve amount
-    // swap if necessary
+    const splitContract = getSplitterContract(signer);
+    const tokenContract =  getERC20Contract(payTokenAddress, signer);
+    const decimals = await tokenContract.decimals();
+    const approveTxn = await tokenContract.approve(process.env.NEXT_PUBLIC_SPLITTER_ADDRESS, ethers.utils.parseUnits(amount, decimals));
+    await approveTxn.wait();
+    // estimate pool fee
+    const fee = 0;
     // transfer to smart contract
+    const payTxn = await splitContract.payDebt(payTokenAddress, payerAddress, fee, amount, billId )
+
+    await payTxn.wait();
+
     // update bill record on db.payer
+    
 }
 
 export const getBills = async ({ creatorAddress }) => {

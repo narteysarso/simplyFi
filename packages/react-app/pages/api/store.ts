@@ -67,6 +67,18 @@ async function createBill(reqData: any): Promise<ResponseObject> {
     })
 }
 
+async function updatePayer(payerId: string, updateInfo: Object): Promise<ResponseObject>{
+    const payer = await db.findById({collection: "Payer", id: payerId});
+    const info = {...payer.data, ...updateInfo};
+    console.log(info);
+    const resp = await db.updatePayer({...info});
+
+    return Object.freeze({
+        status: 200,
+        data: resp
+    })
+}
+
 async function getPayers(payerAddress: string): Promise<ResponseObject> {
     if (!payerAddress) return Object.freeze({
         status: 201,
@@ -122,6 +134,11 @@ export default async function handler(req: NextApiRequest,
                      : (bills) ? await getBills(bills as string)
                      :  await getBillByHash(billHash as string);
                 res.status(result.status).json(result.data);
+            case "PUT": 
+                const {payerId, ...restInfo} = req.body;
+                // console.log(req.body);
+                const updateResult = await updatePayer(payerId, restInfo);
+                res.status(updateResult.status).json(updateResult.data);
             default:
                 res.status(500).json({data: [], message: "Unkown request"});
                 break;
