@@ -15,6 +15,7 @@ import {
     Row,
     Col,
     Tag,
+    message,
     Typography,
 } from "antd";
 import { DEFAULT_ASSETS, TOKENS, TokenIcons } from "../constants/tokens";
@@ -110,6 +111,8 @@ export default function Swap() {
         amountIn: number
     ) => {
         try {
+            messsage.info("starting")
+            alert("start")
             setLoadingQoute(true);
             const [transaction, quoteAmountOut, ratio, networkCost] =
                 await getPrice({
@@ -122,6 +125,7 @@ export default function Swap() {
                     provider,
                 });
 
+            message.success("done")
             alert("done");
 
             setQoute(quoteAmountOut);
