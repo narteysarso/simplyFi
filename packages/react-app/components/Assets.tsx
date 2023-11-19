@@ -150,7 +150,7 @@ const Assets: React.FC = () => {
         }, 5000);
 
         return () => clearTimeout(getBalance);
-    }, [address, isConnected]);
+    }, [address, isConnected, funds]);
 
     useEffect(() => {
         const getBalance = setTimeout(async () => {
@@ -171,6 +171,7 @@ const Assets: React.FC = () => {
             // console.log(rates);
             setRates(rates?.data || []);
         }, 5000);
+        return () => clearTimeout(getBalance);
     }, [collectibles, funds]);
 
     return <Tabs defaultActiveKey="1" items={items} />;
