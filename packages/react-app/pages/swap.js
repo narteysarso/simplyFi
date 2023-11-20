@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
     Form,
     Cascader,
@@ -20,7 +20,7 @@ import {
 import { DEFAULT_ASSETS, TOKENS, TokenIcons } from "../constants/tokens";
 import { LoadingOutlined, SwapOutlined } from "@ant-design/icons";
 import { useAccount } from "wagmi";
-import { useEthersSigner } from "@/lib/ethers";
+import { getSigner, useEthersSigner } from "@/lib/ethers";
 import { getPrice, getTokenBalance } from "@/lib/router";
 import { swap } from "@/lib/transactions";
 
@@ -94,7 +94,7 @@ export default function Swap() {
     const [networkCost, setNetworkCost] = useState(0);
     const { isConnected, address } = useAccount();
     const [form] = Form.useForm();
-    // const signer = useEthersSigner();
+    const signer = useMemo(async() => await getSigner(address), [address])
 
     // const onFromTokenChange = (newtoken) => {
     //     setSelectedToken((prev) => [newtoken, prev.at(1)]);
