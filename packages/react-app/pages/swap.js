@@ -79,21 +79,21 @@ const ToSelector = ({
 const tokens = Object.keys(TOKENS);
 
 export default function Swap() {
-    // const [selectedTokens, setSelectedToken] = useState([
-    //     DEFAULT_ASSETS[0],
-    //     DEFAULT_ASSETS[1],
-    // ]);
-    // const [tokenBalances, setTokenBalances] = useState([0, 0]);
-    // const [autoSpillage, setAutoSpillage] = useState(true);
-    // const [txnData, setTxnData] = useState();
-    // const [form] = Form.useForm();
-    // const [loadingQoute, setLoadingQoute] = useState(false);
+    const [selectedTokens, setSelectedToken] = useState([
+        DEFAULT_ASSETS[0],
+        DEFAULT_ASSETS[1],
+    ]);
+    const [tokenBalances, setTokenBalances] = useState([0, 0]);
+    const [autoSpillage, setAutoSpillage] = useState(true);
+    const [qouteData, setQouteData] = useState();
+    const [loadingQoute, setLoadingQoute] = useState(false);
     // const [qoute, setQoute] = useState(0);
     // const [ratio, setRatio] = useState(0);
     // const [spillage, setSpillage] = useState(0.5);
     // const [swapFee, setSwapFee] = useState(0);
     // const [networkCost, setNetworkCost] = useState(0);
     // const { isConnected, address } = useAccount();
+    // const [form] = Form.useForm();
     // const signer = useEthersSigner();
 
     // const onFromTokenChange = (newtoken) => {
