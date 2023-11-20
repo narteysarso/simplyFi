@@ -55,3 +55,9 @@ export async function getSigner(userAddress: string){
     const provider = new BrowserProvider(window.ethereum);
     const signer = await provider.getSigner(userAddress);
 }
+
+declare global{
+  interface window {
+      ethereum: any
+  }
+}

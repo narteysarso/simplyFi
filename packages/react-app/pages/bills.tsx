@@ -21,7 +21,7 @@ import { getBills, getBillsWithTxnhash, getPays } from "../lib/transactions";
 import { FormModal } from "../components/Invoice";
 import { DEFAULT_ASSETS, TOKENS, TokenIcons } from "@/constants/tokens";
 import { getPrice, getTokenBalance } from "@/lib/router";
-import { useEthersProvider } from "@/lib/ethers";
+import { getSigner, useEthersProvider } from "@/lib/ethers";
 import { ethers } from "ethers";
 
 const { Option } = Select;
@@ -295,7 +295,7 @@ const PayBill = ({ show = false, data = {}, onClose = () => {} }) => {
     const [spillage, setSpillage] = useState(0.5);
     const [swapFee, setSwapFee] = useState(0);
     const { isConnected, address } = useAccount();
-    const provider = useEthersProvider();
+    const signer = useMemo(async() => await getSigner(address as string), [address])
     const {
         amountDue,
         amountPaid,
@@ -349,7 +349,7 @@ const PayBill = ({ show = false, data = {}, onClose = () => {} }) => {
                     slippageAmount: 5,
                     deadline: Math.floor(Date.now() / 1000 + 5 * 60),
                     walletAddress: address,
-                    provider,
+                    signer,
                 });
 
             setQoute(quoteAmountOut);
@@ -367,8 +367,8 @@ const PayBill = ({ show = false, data = {}, onClose = () => {} }) => {
 
     const getCurrentBalances = async () => {
         return await Promise.all([
-            getTokenBalance(TOKENS[selectedTokens[0]], address, provider, true),
-            getTokenBalance(TOKENS[selectedTokens[1]], address, provider, true),
+            getTokenBalance(TOKENS[selectedTokens[0]], address, signer, true),
+            getTokenBalance(TOKENS[selectedTokens[1]], address, signer, true),
         ]);
     };
 
