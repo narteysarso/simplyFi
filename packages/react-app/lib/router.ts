@@ -1,6 +1,6 @@
 import { AlphaRouter, SwapType } from '@uniswap/smart-order-router'
 import { Token, CurrencyAmount, TradeType, Percent } from '@uniswap/sdk-core'
-import { ethers, hexlify, parseUnits} from 'ethers'
+import { ethers, formatUnits, hexlify, parseUnits} from 'ethers'
 import ERC20ABI from '../constants/erc20abi.json'
 import JSBI from 'jsbi'
 import { DEFAULT_ASSETS_DATA, TOKENS } from '@/constants/tokens'
@@ -74,11 +74,11 @@ export const getTokenBalance = async (tokenAddress, account, provider, parse = f
   const contract = new ethers.Contract(tokenAddress, ERC20ABI, provider);
 
   const [balance, decimals] = await Promise.all([contract.balanceOf(account), contract.decimals()]);
-  return parse ? ethers.utils.formatUnits(balance, decimals) : balance;
+  return parse ? formatUnits(balance, decimals) : balance;
 }
 
 export const runSwap = async (transaction, signer, tokenAddress) => {
-  const approvalAmount = ethers.utils.parseUnits('10', 18).toString()
+  const approvalAmount = parseUnits('10', 18).toString()
   const contract0 = new ethers.Contract(tokenAddress, ERC20ABI, signer)
   await contract0.approve(
     V3_SWAP_ROUTER_ADDRESS,
