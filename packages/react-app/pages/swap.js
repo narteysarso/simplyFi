@@ -93,7 +93,7 @@ export default function Swap() {
     // const [swapFee, setSwapFee] = useState(0);
     // const [networkCost, setNetworkCost] = useState(0);
     const { isConnected, address } = useAccount();
-    const [form] = Form.useForm();
+    // const [form] = Form.useForm();
     const signer = useEthersSigner();
 
     // const onFromTokenChange = (newtoken) => {
@@ -110,7 +110,7 @@ export default function Swap() {
     //     amountIn,
     // ) => {
     //     try {
-            
+
     //         setLoadingQoute(true);
     //         const [transaction, quoteAmountOut, ratio, networkCost] =
     //             await getPrice({
@@ -151,5 +151,173 @@ export default function Swap() {
     // }, [selectedTokens, address]);
 
 
-    return ("hi there");
+    return ("hi there1");
+
+    return (
+        <Card title="Swap">
+            <Form
+                form={form}
+                name="swap-tokens-form"
+                onFinish={async (values) => {
+                    // await swap({txnData, signer,  amount: values?.input || 0, fromToken: TOKENS[selectedTokens[0]]})
+                }}
+                onValuesChange={async (val) => {
+                    // await getQoute(
+                    //     selectedTokens[0],
+                    //     selectedTokens[1],
+                    //     parseFloat(val?.input || 0)
+                    // )
+                }
+                }
+            >
+                <Form.Item name="input" initialValue={0}>
+                    <Input
+                        type="number"
+                        size="large"
+                        addonBefore={
+                            <FromSelector
+                                allTokens={tokens.slice(0, 5)}
+                                defaultValue={selectedTokens[0]}
+                                selectedToken={selectedTokens}
+                                onChange={onFromTokenChange}
+                            />
+                        }
+                    />
+                </Form.Item>
+                <Typography.Paragraph style={{ textAlign: "end" }}>
+                    Balance: {tokenBalances[0]} {selectedTokens[0]}
+                </Typography.Paragraph>
+                {/* <Divider>
+                    <Button
+                        shape="circle"
+                        size="large"
+                        icon={<SwapOutlined style={{ rotate: "90deg" }} />}
+                    />
+                </Divider>
+                <Form.Item name="output" initialValue={0}>
+                    <Input
+                        type="number"
+                        size="large"
+                        value={qoute}
+                        addonBefore={
+                            <ToSelector
+                                allTokens={tokens.slice(0,5)}
+                                defaultValue={selectedTokens[1]}
+                                selectedToken={selectedTokens}
+                                onChange={onToTokenChange}
+                            />
+                        }
+                    />
+                </Form.Item>
+                <Typography.Paragraph style={{ textAlign: "end" }}>
+                    Balance: {tokenBalances[1]} {selectedTokens[1]}
+                </Typography.Paragraph>
+                {(ratio > 0 || loadingQoute) && (
+                    <Collapse>
+                        <Collapse.Panel
+                            header={
+                                loadingQoute ? (
+                                    <LoadingOutlined />
+                                ) : (
+                                    <Typography.Title level={5}>
+                                        1 {selectedTokens[1]} = {ratio}{" "}
+                                        {selectedTokens[0]}
+                                    </Typography.Title>
+                                )
+                            }
+                        >
+                            <Row>
+                                <Col span={12}>Price impact</Col>
+                                <Col
+                                    span={12}
+                                    style={{
+                                        textAlign: "end",
+                                        fontWeight: "bold",
+                                    }}
+                                >
+                                    0.06%
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col span={12}>Max. Spillage</Col>
+                                <Col
+                                    span={12}
+                                    style={{
+                                        textAlign: "end",
+                                        fontWeight: "bold",
+                                    }}
+                                >
+                                    {autoSpillage && <Tag>auto</Tag>} {spillage}
+                                    %
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col span={12}>Fee</Col>
+                                <Col
+                                    span={12}
+                                    style={{
+                                        textAlign: "end",
+                                        fontWeight: "bold",
+                                    }}
+                                >
+                                    ${swapFee}
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col span={12}>Network cost</Col>
+                                <Col
+                                    span={12}
+                                    style={{
+                                        textAlign: "end",
+                                        fontWeight: "bold",
+                                    }}
+                                >
+                                    <Avatar src={TokenIcons["cUSD"]} />{" "}
+                                    {networkCost < 0.01
+                                        ? "<$0.01"
+                                        : "$" + networkCost.toFixed(3)}
+                                </Col>
+                            </Row>
+                            <Divider />
+                            <Row>
+                                <Col span={12}>Order routing</Col>
+                                <Col
+                                    span={12}
+                                    style={{
+                                        textAlign: "end",
+                                        fontWeight: "bold",
+                                    }}
+                                >
+                                    Uniswap API
+                                </Col>
+                            </Row>
+                        </Collapse.Panel>
+                    </Collapse>
+                )}
+                <Divider>Transaction Settings</Divider>
+                <Form.Item label="Spillage Tolerance">
+                    <Space align="baseline">
+                        <Form.Item name="spillage" initialValue={spillage}>
+                            <Input disabled addonAfter="%" />
+                        </Form.Item>
+                        <Switch checked={autoSpillage} /> Auto
+                    </Space>
+                </Form.Item>
+                <Form.Item
+                    label="Transaction Deadline"
+                    name="txn_deadline"
+                    initialValue={20}
+                >
+                    <Input addonAfter="minutes" />
+                </Form.Item>
+                <Form.Item
+                    style={{ justifyContent: "flex-end", display: "flex" }}
+                >
+                    <Button htmlType="submit" disabled={!isConnected}>
+                        Swap
+                    </Button>
+                </Form.Item> */}
+            </Form>
+        </Card>
+    );
 }
