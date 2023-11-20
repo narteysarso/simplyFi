@@ -1,4 +1,4 @@
-import { useEffect, useState, } from "react";
+import { useEffect, useState } from "react";
 import {
     Form,
     Cascader,
@@ -15,7 +15,6 @@ import {
     Row,
     Col,
     Tag,
-    message,
     Typography,
 } from "antd";
 import { DEFAULT_ASSETS, TOKENS, TokenIcons } from "../constants/tokens";
@@ -88,15 +87,14 @@ export default function Swap() {
     const [txnData, setTxnData] = useState();
     const [form] = Form.useForm();
     const [loadingQoute, setLoadingQoute] = useState(false);
-    const [qoute, setQoute] = useState("0");
-    const [ratio, setRatio] = useState("0");
+    const [qoute, setQoute] = useState(0);
+    const [ratio, setRatio] = useState(0);
     const [spillage, setSpillage] = useState(0.5);
-    const [swapFee, setSwapFee] = useState("0");
-    const [networkCost, setNetworkCost] = useState("0");
+    const [swapFee, setSwapFee] = useState(0);
+    const [networkCost, setNetworkCost] = useState(0);
     const { isConnected, address } = useAccount();
     const provider = useEthersProvider();
     const signer = useEthersSigner();
-    
 
     const onFromTokenChange = (newtoken) => {
         setSelectedToken((prev) => [newtoken, prev.at(1)]);
@@ -107,13 +105,13 @@ export default function Swap() {
     };
 
     const getQoute = async (
-        tokenA: string,
-        tokenB: string,
-        amountIn: number
+        tokenA,
+        tokenB,
+        amountIn,
     ) => {
         try {
-            
-            
+            alert("start")
+            setLoadingQoute(true);
             const [transaction, quoteAmountOut, ratio, networkCost] =
                 await getPrice({
                     inToken: tokenA,
@@ -125,16 +123,14 @@ export default function Swap() {
                     provider,
                 });
 
-            // message.success("done")
+            alert("done");
 
-            setLoadingQoute(true);
-            setQoute(quoteAmountOut as string);
-            setRatio(ratio as string);
-            setNetworkCost(networkCost as string);
-            setTxnData(transaction as any);
-            // form.setFieldValue("output", quoteAmountOut);
+            setQoute(quoteAmountOut);
+            form.setFieldValue("output", quoteAmountOut);
+            setRatio(ratio);
+            setNetworkCost(networkCost);
+            setTxnData(transaction);
         } catch (error) {
-            
         } finally {
             setLoadingQoute(false);
         }
@@ -148,10 +144,10 @@ export default function Swap() {
     };
 
     useEffect(() => {
-        // if (!address || !isConnected) return;
-        // getCurrentBalances().then(([balance1, balance2]) => {
-        //     setTokenBalances([balance1.toString(), balance2.toString()]);
-        // });
+        if (!address || !isConnected) return;
+        getCurrentBalances().then(([balance1, balance2]) => {
+            setTokenBalances([balance1.toString(), balance2.toString()]);
+        });
 
         if(form.getFieldValue("input") > 0)
         getQoute(selectedTokens[0], selectedTokens[1], form.getFieldValue("input"))
