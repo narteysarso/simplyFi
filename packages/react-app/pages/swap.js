@@ -92,7 +92,7 @@ export default function Swap() {
     // const [spillage, setSpillage] = useState(0.5);
     // const [swapFee, setSwapFee] = useState(0);
     // const [networkCost, setNetworkCost] = useState(0);
-    // const { isConnected, address } = useAccount();
+    const { isConnected, address } = useAccount();
     // const [form] = Form.useForm();
     // const signer = useEthersSigner();
 
@@ -151,5 +151,5 @@ export default function Swap() {
     // }, [selectedTokens, address]);
 
 
-    return ("hi");
+    return ("hi there");
 }
