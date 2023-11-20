@@ -67,10 +67,10 @@ const MainLayout: FC<Props> = ({ children }) => {
                 {children}
                 
             </Content>
-            {/* <Layout.Footer style={{ textAlign: "center" }}>
+            <Layout.Footer style={{ textAlign: "center", background: "white" }}>
             <ActionButtons />
                 Ant Design ©2023 Created by Ant UED
-            </Layout.Footer> */}
+            </Layout.Footer>
         </Layout>
     );
 };

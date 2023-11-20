@@ -18,7 +18,7 @@ import {
 } from "antd";
 import { useAccount } from "wagmi";
 import { getBills, getBillsWithTxnhash, getPays } from "../lib/transactions";
-import { FormModal } from "./Invoice";
+import { FormModal } from "../components/Invoice";
 import { DEFAULT_ASSETS, TOKENS, TokenIcons } from "@/constants/tokens";
 import { getPrice, getTokenBalance } from "@/lib/router";
 import { useEthersProvider } from "@/lib/ethers";
