@@ -1,6 +1,6 @@
 import { AlphaRouter, SwapType } from '@uniswap/smart-order-router'
 import { Token, CurrencyAmount, TradeType, Percent } from '@uniswap/sdk-core'
-import { ethers, BigNumber } from 'ethers'
+import { ethers, hexlify, parseUnits} from 'ethers'
 import ERC20ABI from '../constants/erc20abi.json'
 import JSBI from 'jsbi'
 import { DEFAULT_ASSETS_DATA, TOKENS } from '@/constants/tokens'
@@ -26,7 +26,8 @@ export const getPrice = async (params: { inToken: string, outToken: string, inpu
 
   const router = new AlphaRouter({ chainId, provider })
   const percentSlippage = new Percent(slippageAmount, 100)
-  const amountIn = ethers.utils.parseUnits(inputAmount.toString(), tokenIn.decimals)
+
+  const amountIn = parseUnits(inputAmount.toString(), tokenIn.decimals)
   const currencyAmount = CurrencyAmount.fromRawAmount(tokenIn, JSBI.BigInt(amountIn))
 
   // console.log(tokenIn, tokenOut);
@@ -50,13 +51,14 @@ export const getPrice = async (params: { inToken: string, outToken: string, inpu
   // console.log(route);
 
   const transaction = {
-    data: route.methodParameters.calldata,
+    data: route.methodParameters?.calldata,
     to: V3_SWAP_ROUTER_ADDRESS,
-    value: BigNumber.from(route.methodParameters.value),
+    value: BigInt(route.methodParameters?.value),
     from: walletAddress,
-    gasPrice: BigNumber.from(route.gasPriceWei),
-    gasLimit: ethers.utils.hexlify(1000000)
+    gasPrice: BigInt(route.gasPriceWei),
+    gasLimit: hexlify(1000000)
   }
+
 
   const quoteAmountOut = route.quote.toFixed(6);
   const ratio = (inputAmount / quoteAmountOut).toFixed(6)

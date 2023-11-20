@@ -13,10 +13,10 @@ import {
 } from "antd";
 import { DEFAULT_ASSETS, TOKENS, TokenIcons } from "@/constants/tokens";
 import { createBill } from "../lib/transactions";
-import { useEthersSigner } from "@/lib/ethers";
+import { getSigner} from "@/lib/ethers";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { useAccount } from "wagmi";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 const { TextArea } = Input;
 
@@ -25,7 +25,7 @@ const SplitForm = ({ form, onfinish = (j) => {} }) => {
     const [selectedToken, setSelectedToken] = useState(DEFAULT_ASSETS[0]);
     const [loading, setLoading] = useState(false);
     const { address } = useAccount();
-    const signer = useEthersSigner();
+     const signer = useMemo(async() => await getSigner(address), [address])
     const [fields, setFields] = useState([
         {
             name: "payToken",

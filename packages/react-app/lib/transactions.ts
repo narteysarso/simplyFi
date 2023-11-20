@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { getERC20Contract, getSplitterContract } from "../lib/helpers";
-import { ethers } from "ethers";
+import { ethers, parseUnits } from "ethers";
 
 export const createBill = async ({
     tokenAddress,
@@ -23,14 +23,14 @@ export const createBill = async ({
         const tokenContract = getERC20Contract(tokenAddress, signer);
         const decimals = 18 //await tokenContract.decimals();
 
-        const _amountDue = ethers.utils.parseUnits(amountDue.toString(), decimals ).toString();
+        const _amountDue = parseUnits(amountDue.toString(), decimals ).toString();
 
         const _payers = payers.reduce((prev, payer, idx) => {
-            const amount = ethers.utils.parseUnits(payer.amount.toString(), decimals).toString();
+            const amount = parseUnits(payer.amount.toString(), decimals).toString();
             return [[...prev[0],{...payer, amount }], [...prev[1],[payer.account, amount]]];
         }, [[],[]])
 
-        const _items = items.map(item => ({...item, amount: ethers.utils.parseUnits(item.amount, decimals).toString()}))
+        const _items = items.map(item => ({...item, amount: parseUnits(item.amount, decimals).toString()}))
 
         // send txn
         const txn = await splitContract.createBill(_amountDue, tokenAddress, paymentDue.toString(), recipient, creator, _payers[1]);
@@ -96,7 +96,7 @@ export const payBill = async (params: { billId: number , amount: string, payToke
     const splitContract = getSplitterContract(signer);
     const tokenContract =  getERC20Contract(payTokenAddress, signer);
     const decimals = await tokenContract.decimals();
-    const approveTxn = await tokenContract.approve(process.env.NEXT_PUBLIC_SPLITTER_ADDRESS, ethers.utils.parseUnits(amount, decimals));
+    const approveTxn = await tokenContract.approve(process.env.NEXT_PUBLIC_SPLITTER_ADDRESS, parseUnits(amount, decimals));
     await approveTxn.wait();
     // estimate pool fee
     const fee = 0;
@@ -140,7 +140,7 @@ export const swap = async(params = {fromToken: string, amount: string,  signer: 
     const tokenContract = getERC20Contract(fromToken, signer);
     const decimals = await tokenContract.decimals();
 
-    const approve = await tokenContract.approve(txnData.to, ethers.utils.parseUnits(amount, decimals));
+    const approve = await tokenContract.approve(txnData.to, parseUnits(amount, decimals));
     
     await approve.wait();
 
