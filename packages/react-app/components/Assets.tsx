@@ -124,7 +124,7 @@ const Assets: React.FC = () => {
     //             // console.log(rates);
     //             setRates(rates?.data || []);
     //         } catch (error) {
-    //             console.log(error);
+    //             // console.log(error);
     //         } finally {
     //             setLoadingBalances(false);
     //         }
@@ -175,7 +175,7 @@ const Assets: React.FC = () => {
     //             );
     //         } catch (error) {
     //             message.error(error.message);
-    //             console.log(error);
+    //             // console.log(error);
     //         } finally {
     //             setLoadingAssets(false);
     //         }

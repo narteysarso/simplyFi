@@ -112,7 +112,6 @@ export default function Swap() {
     ) => {
         try {
             message.info("starting")
-            alert("start")
             setLoadingQoute(true);
             const [transaction, quoteAmountOut, ratio, networkCost] =
                 await getPrice({
@@ -126,7 +125,6 @@ export default function Swap() {
                 });
 
             message.success("done")
-            alert("done");
 
             setQoute(quoteAmountOut);
             form.setFieldValue("output", quoteAmountOut);

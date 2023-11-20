@@ -14,6 +14,7 @@ import {
     Input,
     Typography,
     Tooltip,
+    message,
 } from "antd";
 import { useAccount } from "wagmi";
 import { getBills, getBillsWithTxnhash, getPays } from "../lib/transactions";
@@ -357,7 +358,8 @@ const PayBill = ({ show = false, data = {}, onClose = () => {} }) => {
             // setNetworkCost(networkCost);
             setTxnData(transaction);
         } catch (error) {
-            console.log(error);
+            message.error(error.message)
+            //console.log(error);
         } finally {
             setLoadingQoute(false);
         }
@@ -381,7 +383,7 @@ const PayBill = ({ show = false, data = {}, onClose = () => {} }) => {
             form.getFieldValue("input")
         )
             .then(() => {})
-            .catch(console.log);
+            .catch((err) => message.error(err.message));
         // console.log("ccall");
     }, [selectedTokens, isConnected, address]);
 
