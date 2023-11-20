@@ -13,10 +13,10 @@ import {
 } from "antd";
 import { DEFAULT_ASSETS, TOKENS, TokenIcons } from "@/constants/tokens";
 import { createBill } from "../lib/transactions";
-import { getSigner} from "@/lib/ethers";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { useAccount } from "wagmi";
 import { useState, useMemo } from "react";
+import { BrowserProvider } from "ethers";
 
 const { TextArea } = Input;
 
@@ -25,7 +25,14 @@ const SplitForm = ({ form, onfinish = (j) => {} }) => {
     const [selectedToken, setSelectedToken] = useState(DEFAULT_ASSETS[0]);
     const [loading, setLoading] = useState(false);
     const { address } = useAccount();
-     const signer = useMemo(async() => await getSigner(address), [address])
+    const signer = useMemo(async () => {
+        if (!window.ethereum) return null;
+
+        const provider = new BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner(address);
+
+        return signer;
+    }, [address]);
     const [fields, setFields] = useState([
         {
             name: "payToken",
@@ -106,17 +113,16 @@ const SplitForm = ({ form, onfinish = (j) => {} }) => {
                         ...values,
                         tokenAddress: TOKENS[values?.payToken || "CELO"],
                         creator: address,
-                        signer
-                    })
+                        signer,
+                    });
                     onfinish(data);
                     message.success("Bill Created");
                 } catch (error) {
-                    message.warning("Bill failed")
+                    message.warning("Bill failed");
                     // console.log(error);
-                }finally{
+                } finally {
                     setLoading(false);
                 }
-                
             }}
         >
             <Form.Item
@@ -133,7 +139,7 @@ const SplitForm = ({ form, onfinish = (j) => {} }) => {
             </Form.Item>
             <Form.Item label={<b>Choose your currency</b>} name="payToken">
                 <Radio.Group size="large" buttonStyle="solid">
-                    {tokens.slice(0,5).map((tk, idx) => (
+                    {tokens.slice(0, 5).map((tk, idx) => (
                         <Radio.Button value={tk} key={idx}>
                             <Avatar
                                 size={24}
@@ -344,7 +350,6 @@ export const FormModal = () => {
     const [form] = Form.useForm();
     const [open, setOpen] = useState(false);
     const onCreate = (values) => {
-        
         setOpen(false);
     };
     const onCancel = () => {

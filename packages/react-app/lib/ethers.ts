@@ -48,18 +48,3 @@ import { type HttpTransport } from 'viem'
 //     [walletClient],
 //   )
 // }
-
-export async function getSigner(userAddress: string){
-  if(!window.ethereum) return null;
-
-    const provider = new BrowserProvider(window.ethereum);
-    const signer = await provider.getSigner(userAddress);
-
-    return signer
-}
-
-declare global{
-  interface window {
-      ethereum: any
-  }
-}

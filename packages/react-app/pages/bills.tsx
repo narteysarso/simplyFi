@@ -21,8 +21,7 @@ import { getBills, getBillsWithTxnhash, getPays } from "../lib/transactions";
 import { FormModal } from "../components/Invoice";
 import { DEFAULT_ASSETS, TOKENS, TokenIcons } from "@/constants/tokens";
 import { getPrice, getTokenBalance } from "@/lib/router";
-import { getSigner, useEthersProvider } from "@/lib/ethers";
-import { ethers, formatUnits } from "ethers";
+import { BrowserProvider, ethers, formatUnits } from "ethers";
 
 const { Option } = Select;
 
@@ -295,7 +294,15 @@ const PayBill = ({ show = false, data = {}, onClose = () => {} }) => {
     const [spillage, setSpillage] = useState(0.5);
     const [swapFee, setSwapFee] = useState(0);
     const { isConnected, address } = useAccount();
-    const signer = useMemo(async() => await getSigner(address as string), [address])
+    const signer = useMemo(async () => {
+        if (!window.ethereum) return null;
+
+        const provider = new BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner(address);
+
+        return signer;
+    }, [address]);
+    
     const {
         amountDue,
         amountPaid,
