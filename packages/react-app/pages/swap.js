@@ -76,8 +76,9 @@ const ToSelector = ({
     </Select>
 );
 
+const tokens = Object.keys(TOKENS);
+
 export default function Swap() {
-    const tokens = Object.keys(TOKENS);
     const [selectedTokens, setSelectedToken] = useState([
         DEFAULT_ASSETS[0],
         DEFAULT_ASSETS[1],
@@ -157,7 +158,6 @@ export default function Swap() {
                 form={form}
                 name="swap-tokens-form"
                 onFinish={async (values) => {
-                    
                     await swap({txnData, signer,  amount: values?.input || 0, fromToken: TOKENS[selectedTokens[0]]})
                 }}
                 onValuesChange={async (val) =>
@@ -185,7 +185,7 @@ export default function Swap() {
                 <Typography.Paragraph style={{ textAlign: "end" }}>
                     Balance: {tokenBalances[0]} {selectedTokens[0]}
                 </Typography.Paragraph>
-                <Divider>
+                {/* <Divider>
                     <Button
                         shape="circle"
                         size="large"
@@ -314,7 +314,7 @@ export default function Swap() {
                     <Button htmlType="submit" disabled={!isConnected}>
                         Swap
                     </Button>
-                </Form.Item>
+                </Form.Item> */}
             </Form>
         </Card>
     );
