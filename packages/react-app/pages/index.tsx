@@ -3,7 +3,7 @@ import { useAccount } from "wagmi";
 import { Button, Col, Row, Tabs } from "antd";
 import Assets from "@/components/Assets";
 import Bills from "@/components/Bills";
-import Swap from "@/components/Swap";
+import Swap from "../components/Swap";
 
 export default function Home() {
     const [userAddress, setUserAddress] = useState("");

@@ -110,7 +110,7 @@ export default function Swap() {
         amountIn,
     ) => {
         try {
-            alert("start")
+            
             setLoadingQoute(true);
             const [transaction, quoteAmountOut, ratio, networkCost] =
                 await getPrice({
@@ -123,7 +123,7 @@ export default function Swap() {
                     provider,
                 });
 
-            alert("done");
+            
 
             setQoute(quoteAmountOut);
             form.setFieldValue("output", quoteAmountOut);
