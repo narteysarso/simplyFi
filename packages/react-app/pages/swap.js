@@ -20,7 +20,7 @@ import {
 import { DEFAULT_ASSETS, TOKENS, TokenIcons } from "../constants/tokens";
 import { LoadingOutlined, SwapOutlined } from "@ant-design/icons";
 import { useAccount } from "wagmi";
-import { getSigner, useEthersSigner } from "@/lib/ethers";
+import { getSigner } from "@/lib/ethers";
 import { getPrice, getTokenBalance } from "@/lib/router";
 import { swap } from "@/lib/transactions";
 
