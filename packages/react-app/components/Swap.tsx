@@ -132,7 +132,7 @@ export default function Swap() {
             setRatio(ratio as string);
             setNetworkCost(networkCost as string);
             setTxnData(transaction as any);
-            form.setFieldValue("output", quoteAmountOut);
+            // form.setFieldValue("output", quoteAmountOut);
         } catch (error) {
             
         } finally {
