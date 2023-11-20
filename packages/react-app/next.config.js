@@ -7,7 +7,7 @@ const nextConfig = {
     // !! WARN !!
     ignoreBuildErrors: true,
   },
-  reactStrictMode: false,
+  reactStrictMode: true,
   swcMinify: true,
   webpack: (config) => {
     config.resolve.fallback = {
