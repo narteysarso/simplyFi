@@ -111,8 +111,8 @@ export default function Swap() {
         amountIn: number
     ) => {
         try {
-            message.info("starting")
-            setLoadingQoute(true);
+            
+            
             const [transaction, quoteAmountOut, ratio, networkCost] =
                 await getPrice({
                     inToken: tokenA,
@@ -124,13 +124,14 @@ export default function Swap() {
                     provider,
                 });
 
-            message.success("done")
+            // message.success("done")
 
+            setLoadingQoute(true);
             setQoute(quoteAmountOut);
-            form.setFieldValue("output", quoteAmountOut);
             setRatio(ratio);
             setNetworkCost(networkCost);
             setTxnData(transaction);
+            form.setFieldValue("output", quoteAmountOut);
         } catch (error) {
             
         } finally {
