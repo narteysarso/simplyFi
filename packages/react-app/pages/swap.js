@@ -87,11 +87,11 @@ export default function Swap() {
     const [autoSpillage, setAutoSpillage] = useState(true);
     const [qouteData, setQouteData] = useState();
     const [loadingQoute, setLoadingQoute] = useState(false);
-    // const [qoute, setQoute] = useState(0);
-    // const [ratio, setRatio] = useState(0);
-    // const [spillage, setSpillage] = useState(0.5);
-    // const [swapFee, setSwapFee] = useState(0);
-    // const [networkCost, setNetworkCost] = useState(0);
+    const [qoute, setQoute] = useState(0);
+    const [ratio, setRatio] = useState(0);
+    const [spillage, setSpillage] = useState(0.5);
+    const [swapFee, setSwapFee] = useState(0);
+    const [networkCost, setNetworkCost] = useState(0);
     const { isConnected, address } = useAccount();
     const [form] = Form.useForm();
     // const signer = useEthersSigner();

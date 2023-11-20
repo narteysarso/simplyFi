@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { type PublicClient, usePublicClient } from 'wagmi'
 import { type WalletClient, useWalletClient } from 'wagmi'
-import { providers } from 'ethers'
+import { BrowserProvider, providers } from 'ethers'
 import { type HttpTransport } from 'viem'
 
 export function publicClientToProvider(publicClient: PublicClient) {
@@ -47,4 +47,9 @@ export function useEthersSigner({ chainId }: { chainId?: number } = {}) {
     () => (walletClient ? walletClientToSigner(walletClient) : undefined),
     [walletClient],
   )
+}
+
+export function getProvider(){
+
+  
 }
